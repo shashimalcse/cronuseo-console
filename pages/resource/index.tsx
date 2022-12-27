@@ -4,54 +4,20 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import Create_Model from '../../components/create_model'
 import { useState, useEffect } from 'react'
 import { Column, useTable } from 'react-table'
-import { faXmark, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
-
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
+import useSWR, { Key, Fetcher } from 'swr'
+import { IResourcesResponse } from '../../src/interfaces'
+import { routes } from '../../src/routes';
+import { fetcher } from '../../src/fetcher'
 
 
 export default function Resource() {
     const [showModal, setShowModel] = useState(false)
     // const [data, setData] = useState(null)
     // const [isLoading, setLoading] = useState(false)
-
-    const data = React.useMemo(
-        () => [
-            {
-                col1: 'Sales',
-                col2: 'sales',
-            },
-            {
-                col1: 'Products',
-                col2: 'products',
-            },
-            {
-                col1: 'Inventory',
-                col2: 'inventory',
-            },
-        ],
-        []
-    )
-
-    const columns = React.useMemo<Column<{ col1: string, col2: string }>[]>(
-        () => [
-            {
-                Header: 'Resource Name',
-                accessor: 'col1', // accessor is the "key" in the data
-            },
-            {
-                Header: 'Resource Key',
-                accessor: 'col2',
-            }
-        ],
-        []
-    )
-    const tableInstance = useTable({ columns, data })
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-    } = useTable({ columns, data })
+    const { isValidating, data, error } = useSWR<IResourcesResponse, Error>(
+        routes.resource, fetcher);
+    console.log(data?.results)
     return (
         <div className=''>
             <div className='flex flex-col'>
@@ -68,50 +34,40 @@ export default function Resource() {
                     <div className="overflow-x-auto">
                         <div className="p-5 w-full inline-block align-middle">
                             <div className='overflow-hidden border rounded-lg'>
-                                <table {...getTableProps()} className='min-w-full divide-y divide-gray-200'>
+                                <table className='min-w-full divide-y divide-gray-200'>
                                     <thead className="bg-gray-50">
-                                        {// Loop over the header rows
-                                            headerGroups.map(headerGroup => (
-                                                // Apply the header row props
-                                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                                    {// Loop over the headers in each row
-                                                        headerGroup.headers.map(column => (
-                                                            // Apply the header cell props
-                                                            <th {...column.getHeaderProps()} className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
-                                                                {// Render the header
-                                                                    column.render('Header')}
-                                                            </th>
-                                                        ))}
-                                                    <th className="px-10 py-3 text-xs font-bold text-right text-gray-500 uppercase ">
-                                                        <a className="">
-                                                            Actions
-                                                        </a>
-                                                    </th>
-                                                </tr>
-                                            ))}
+                                        <tr>
+                                            <th className="px-10 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
+                                                <a className="">
+                                                    Resource Name
+                                                </a>
+                                            </th>
+                                            <th className="px-10 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
+                                                <a className="">
+                                                    Resource Key
+                                                </a>
+                                            </th>
+                                            <th className="px-10 py-3 text-xs font-bold text-right text-gray-500 uppercase ">
+                                                <a className="">
+                                                    Actions
+                                                </a>
+                                            </th>
+                                        </tr>
                                     </thead>
-                                    {/* Apply the table body props */}
-                                    <tbody {...getTableBodyProps()} className="bg-white divide-y divide-gray-200">
-                                        {// Loop over the table rows
-                                            rows.map(row => {
-                                                // Prepare the row for display
-                                                prepareRow(row)
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {
+                                            data?.results.map( result => {
                                                 return (
-                                                    // Apply the row props
-                                                    <tr {...row.getRowProps()}>
-                                                        {// Loop over the rows cells
-                                                            row.cells.map(cell => {
-                                                                // Apply the cell props
-                                                                return (
-                                                                    <td {...cell.getCellProps()} className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                                                                        {// Render the cell contents
-                                                                            cell.render('Cell')}
-                                                                    </td>
-                                                                )
-                                                            })}
+                                                    <tr key={result.resource_key}>
+                                                        <td className="px-10 py-4 text-left text-gray-800 whitespace-nowrap">
+                                                            {result.name}
+                                                        </td>
+                                                        <td className="px-10 py-4 text-left text-gray-800 whitespace-nowrap">
+                                                            {result.resource_key}
+                                                        </td>
                                                         <td className="px-10 py-4 text-right text-gray-800 whitespace-nowrap">
                                                             <button>
-                                                                <FontAwesomeIcon icon={faEllipsisVertical}/>
+                                                                <FontAwesomeIcon icon={faEllipsisVertical} />
                                                             </button>
                                                         </td>
                                                     </tr>
