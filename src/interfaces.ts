@@ -20,3 +20,8 @@ export interface ILinks {
     next: string;
     prev:string;
 }
+
+export interface IResourceCreateRequest {
+    name: string;
+    resource_key: string;
+}
