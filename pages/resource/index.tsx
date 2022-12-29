@@ -22,8 +22,10 @@ export default function Resources() {
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
             body: JSON.stringify(resource)
         })
-        const data = response.json()
-        console.log(data)
+        if(response.status==201) {
+            setResource({ name: "", resource_key: "" })
+            setShowModel(false)
+        }
 
     }
 
@@ -33,8 +35,6 @@ export default function Resources() {
         })
     }
 
-    // const { data, error } = useSWR<IResourcesResponse, Error>(
-    //     routes.resource, fetcher);
     useEffect(() => {
         fetch(routes.resource)
         .then((res) => res.json())

@@ -1,4 +1,4 @@
-import { faPlus, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
@@ -11,27 +11,49 @@ import { routes } from '../../src/routes';
 export default function Resource() {
     const router = useRouter()
     const { r_id } = router.query
-  
-    const [resources, setResources]: any = useState<IResourcesReslut[] | undefined>(undefined)
+    const [resource, setResource] = useState<IResourcesReslut | undefined>(undefined)
+    const [showCreateAction, setShowCreateAction] = useState(false)
 
-    const { data, error } = useSWR<IResourcesResponse, Error>(
-        routes.resource, fetcher);
     useEffect(() => {
-        setResources(data?.results)
+        fetch(routes.resource + `/${r_id}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setResource(data)
+            })
+
     })
-    if (error) return <div>failed to load</div>
-    if (!data) return <div>loading...</div>
+
     return (
         <div className=''>
             <div className='flex flex-col'>
                 <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>
-                    <h1 className='font-sans text-xl font-bold'>Resources</h1>
-                    <button className='bg-black rounded-md px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
+                    <div className='flex flex-row justify-between items-center gap-5'>
+                        <Link href={"/resource"}>
+                            <FontAwesomeIcon icon={faAngleLeft} />
+                        </Link>
+                        <h1 className='font-sans text-xl font-bold'>{resource?.name}</h1>
+                        <div className='text-gray-500 text-sm'>{resource?.resource_key}</div>
+                    </div>
+                    {showCreateAction ? <button className='bg-black rounded-md px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
                         <div className='flex flex-row justify-between items-center gap-2'>
                             <FontAwesomeIcon icon={faPlus} />
-                            Create a Resource
+                            Create a Action
                         </div>
-                    </button>
+
+
+                    </button> : null}
+                </div>
+                <div className='mx-10 border rounded-lg bg-white'>
+                    <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-200">
+                        <ul className="flex flex-wrap -mb-px">
+                            <li className="mr-2" onClick={() => { setShowCreateAction(false) }}>
+                                <a href="#" className={(!showCreateAction?"text-yellow-400 border-yellow-400":"hover:text-gray-600 hover:border-gray-300")+" inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Settings</a>
+                            </li>
+                            <li className="mr-2" onClick={() => { setShowCreateAction(true) }}>
+                                <a href="#" className={(showCreateAction?"text-yellow-400 border-yellow-400":"hover:text-gray-600 hover:border-gray-300")+" inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Actions</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 {/* <div className="flex flex-col">
                     <div className="overflow-x-auto">
