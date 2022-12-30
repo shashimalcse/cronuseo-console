@@ -25,3 +25,20 @@ export interface IResourceCreateRequest {
     name: string;
     resource_key: string;
 }
+
+export interface IActionsResponse {
+    cursor: number;
+    limit: number;
+    size: number;
+    results: IActionsReslut[];
+    _links: ILinks;
+}
+
+export interface IActionsReslut {
+    action_id: string;
+    name: string;
+    action_key: string;
+    org_id: string;
+    created_at: string;
+    updated_at: string;
+}
