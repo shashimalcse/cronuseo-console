@@ -14,6 +14,7 @@ export default function Resource() {
     const [resource, setResource] = useState<IResourcesReslut | undefined>(undefined)
     const [showCreateAction, setShowCreateAction] = useState(false)
 
+
     useEffect(() => {
         fetch(routes.resource + `/${r_id}`)
             .then((res) => res.json())
@@ -22,6 +23,8 @@ export default function Resource() {
             })
 
     })
+
+    const [name, setName] = useState(resource?.name)
 
     return (
         <div className=''>
@@ -39,22 +42,33 @@ export default function Resource() {
                             <FontAwesomeIcon icon={faPlus} />
                             Create a Action
                         </div>
-
-
                     </button> : null}
                 </div>
                 <div className='mx-10 border rounded-lg bg-white'>
                     <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-200">
                         <ul className="flex flex-wrap -mb-px">
                             <li className="mr-2" onClick={() => { setShowCreateAction(false) }}>
-                                <a href="#" className={(!showCreateAction?"text-yellow-400 border-yellow-400":"hover:text-gray-600 hover:border-gray-300")+" inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Settings</a>
+                                <a href="#" className={(!showCreateAction ? "text-yellow-400 border-yellow-400" : "hover:text-gray-600 hover:border-gray-300") + " inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Settings</a>
                             </li>
                             <li className="mr-2" onClick={() => { setShowCreateAction(true) }}>
-                                <a href="#" className={(showCreateAction?"text-yellow-400 border-yellow-400":"hover:text-gray-600 hover:border-gray-300")+" inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Actions</a>
+                                <a href="#" className={(showCreateAction ? "text-yellow-400 border-yellow-400" : "hover:text-gray-600 hover:border-gray-300") + " inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Actions</a>
                             </li>
                         </ul>
                     </div>
+                    {
+                        !showCreateAction ?
+                            <div className='h-min-full'>
+                                <div>
+                                    <label className="block mb-2 text-sm font-medium">Resource Name</label>
+                                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                                </div>
+                            </div> :
+                            <div>
+                                actions
+                            </div>
+                    }
                 </div>
+
                 {/* <div className="flex flex-col">
                     <div className="overflow-x-auto">
                         <div className="p-5 w-full inline-block align-middle">
