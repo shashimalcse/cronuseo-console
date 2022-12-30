@@ -154,66 +154,13 @@ export default function Resource() {
                         }
                     </div>
                 </div>
-
-                {/* <div className="flex flex-col">
-                    <div className="overflow-x-auto">
-                        <div className="p-5 w-full inline-block align-middle">
-                            <div className='overflow-hidden border rounded-lg'>
-                                <table className='min-w-full divide-y divide-gray-200'>
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-10 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
-                                                <a className="">
-                                                    Resource Name
-                                                </a>
-                                            </th>
-                                            <th className="px-10 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
-                                                <a className="">
-                                                    Resource Key
-                                                </a>
-                                            </th>
-                                            <th className="px-10 py-3 text-xs font-bold text-right text-gray-500 uppercase ">
-                                                <a className="">
-                                                    Actions
-                                                </a>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {
-                                            resources?.map((resource: IResourcesReslut) => {
-                                                return (
-
-                                                    <tr key={resource.resource_key}>
-                                                        <Link href={"/resource/" + resource.resource_id}>
-                                                            <td className="px-10 py-2 text-left text-gray-800 whitespace-nowrap">
-                                                                {resource.name}
-                                                            </td>
-                                                        </Link>
-                                                        <td className="px-10 py-2 text-left text-gray-800 whitespace-nowrap">
-                                                            {resource.resource_key}
-                                                        </td>
-                                                        <td className="px-10 py-2 text-right text-gray-800 whitespace-nowrap">
-                                                            <button>
-                                                                <FontAwesomeIcon icon={faEllipsisVertical} />
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            })}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
-                {/* <Create_Model title='Create a Resource' isVisible={showModal} onClose={() => setShowModel(false)}>
+                <Create_Model title='Create a Action' isVisible={showModal} onClose={() => setShowModel(false)}>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Action Name</label>
                         <input type="text" id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                     </div>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Action Key</label>
                         <input type="text" id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                     </div>
                     <div className='flex flex-grow flex-row justify-end items-center'>
@@ -221,7 +168,7 @@ export default function Resource() {
                             Create
                         </button>
                     </div>
-                </Create_Model> */}
+                </Create_Model>
             </div>
         </div>
     )
