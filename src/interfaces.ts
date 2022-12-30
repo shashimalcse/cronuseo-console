@@ -42,3 +42,8 @@ export interface IActionsReslut {
     created_at: string;
     updated_at: string;
 }
+
+export interface IActionCreateRequest {
+    name: string;
+    action_key: string;
+}

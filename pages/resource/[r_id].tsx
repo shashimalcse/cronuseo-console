@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react';
 import Create_Model from '../../components/create_model';
 import { fetcher } from '../../src/fetcher';
-import { IActionsReslut, IResourcesReslut, IResourcesResponse } from '../../src/interfaces';
+import { IActionCreateRequest, IActionsReslut, IResourcesReslut, IResourcesResponse } from '../../src/interfaces';
 import { routes } from '../../src/routes';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
@@ -17,6 +17,7 @@ export default function Resource() {
     const [name, setName] = useState("")
     const [showModal, setShowModel] = useState(false)
     const [actions, setActions] = useState<IActionsReslut[] | undefined>(undefined)
+    const [action, setAction] = useState<IActionCreateRequest>({ name: "", action_key: "" })
 
     useEffect(() => {
         fetch(routes.resource + `/${r_id}`)
@@ -25,8 +26,7 @@ export default function Resource() {
                 setResource(data)
                 setName(data.name)
             })
-
-    })
+    }, [])
 
     useEffect(() => {
         if (showCreateAction) {
@@ -37,6 +37,26 @@ export default function Resource() {
                 })
         }
     })
+
+    const submitAction = async () => {
+        console.log(action)
+        const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            body: JSON.stringify(action)
+        })
+        if (response.status == 201) {
+            setAction({ name: "", action_key: "" })
+            setShowModel(false)
+        }
+
+    }
+
+    const deleteAction = async (action_id: string) => {
+        const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action/${action_id}`, {
+            method: 'DELETE',
+        })
+    }
 
     return (
         <div className=''>
@@ -118,7 +138,7 @@ export default function Resource() {
                                                                                 {action.action_key}
                                                                             </td>
                                                                             <td className="px-10 py-2 text-right text-gray-800 whitespace-nowrap">
-                                                                                <button>
+                                                                                <button onClick={() => { deleteAction(action.action_id) }}>
                                                                                     <FontAwesomeIcon icon={faTrash} />
                                                                                 </button>
                                                                             </td>
@@ -131,40 +151,25 @@ export default function Resource() {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <Create_Model title='Create a Resource' isVisible={showModal} onClose={() => {
-                                        setResource({ name: "", resource_key: "" })
-                                        setShowModel(false)
-                                    }
-                                    }>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
-                                            <input type="text" value={resource.name} onChange={(e) => setResource({ name: e.target.value, resource_key: resource.resource_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
-                                        </div>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
-                                            <input type="text" value={resource.resource_key} onChange={(e) => setResource({ name: resource.name, resource_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
-                                        </div>
-                                        <div className='flex flex-grow flex-row justify-end items-center'>
-                                            <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitResource() }}>
-                                                Create
-                                            </button>
-                                        </div>
-                                    </Create_Model> */}
                                 </div>
                         }
                     </div>
                 </div>
-                <Create_Model title='Create a Action' isVisible={showModal} onClose={() => setShowModel(false)}>
+                <Create_Model title='Create a Resource' isVisible={showModal} onClose={() => {
+                    setAction({ name: "", action_key: "" })
+                    setShowModel(false)
+                }
+                }>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Action Name</label>
-                        <input type="text" id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
+                        <input type="text" value={action.name} onChange={(e) => setAction({ name: e.target.value, action_key: action.action_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                     </div>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Action Key</label>
-                        <input type="text" id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
+                        <input type="text" value={action.action_key} onChange={(e) => setAction({ name: action.name, action_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                     </div>
                     <div className='flex flex-grow flex-row justify-end items-center'>
-                        <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => setShowModel(false)}>
+                        <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitAction() }}>
                             Create
                         </button>
                     </div>
@@ -172,13 +177,4 @@ export default function Resource() {
             </div>
         </div>
     )
-}
-
-function useSWR<T, U>(resource: string, fetcher: (url: string) => Promise<any>): { data: any; error: any; } {
-    throw new Error('Function not implemented.');
-}
-
-
-function setShowModel(arg0: boolean): void {
-    throw new Error('Function not implemented.');
 }

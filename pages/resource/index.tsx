@@ -42,7 +42,7 @@ export default function Resources() {
             setResources(data?.results)
         })
         
-    })
+    },[])
 
     if (!resources) return <div>loading...</div>
     return (
