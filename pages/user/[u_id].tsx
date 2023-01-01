@@ -14,7 +14,7 @@ export default function User() {
     const { u_id } = router.query
     const [user, setUser] = useState<IUsersReslut | undefined>(undefined)
     const [showRoles, setShowRoles] = useState(false)
-    const [name, setName] = useState<IUserUpdateRequest>({firstname: "", lastname: ""})
+    const [name, setName] = useState<IUserUpdateRequest>({ firstname: "", lastname: "" })
     const [roles, setRoles] = useState<IRolesReslut[] | undefined>(undefined)
 
     useEffect(() => {
@@ -26,14 +26,12 @@ export default function User() {
     }, [])
 
     useEffect(() => {
-        if (showRoles) {
-            fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role/${u_id}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setRoles(data?.results)
-                })
-        }
-    },[])
+        fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role/${u_id}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setRoles(data?.results)
+            })
+    }, [])
 
     return (
         <div className=''>
@@ -64,11 +62,11 @@ export default function User() {
                                 <div className='flex flex-col flex-grow justify-between m-5'>
                                     <div>
                                         <label className="block mb-2 text-xs font-medium">First Name</label>
-                                        <input type="text" value={name.firstname} onChange={(e) => setName({firstname: e.target.value, lastname: name.lastname})} id="firstname" className="block w-[300px] p-2 border rounded-lg sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='First Name' required />
+                                        <input type="text" value={name.firstname} onChange={(e) => setName({ firstname: e.target.value, lastname: name.lastname })} id="firstname" className="block w-[300px] p-2 border rounded-lg sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='First Name' required />
                                     </div>
                                     <div>
                                         <label className="block mb-2 text-xs font-medium">Last Name</label>
-                                        <input type="text" value={name.lastname} onChange={(e) => setName({lastname: e.target.value, firstname: name.firstname})} id="lastname" className="block w-[300px] p-2 border rounded-lg sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Last Name' required />
+                                        <input type="text" value={name.lastname} onChange={(e) => setName({ lastname: e.target.value, firstname: name.firstname })} id="lastname" className="block w-[300px] p-2 border rounded-lg sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Last Name' required />
                                     </div>
                                     <div className='flex flex-grow flex-row justify-end items-center'>
                                         <button className='bg-black rounded-md px-6 py-2 text-white text-xs'>
