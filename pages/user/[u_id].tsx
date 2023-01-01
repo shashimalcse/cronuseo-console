@@ -1,13 +1,10 @@
-import { faPlus, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
-import { useState, useEffect, use } from 'react';
-import Create_Model from '../../components/create_model';
-import { fetcher } from '../../src/fetcher';
+import { useState, useEffect } from 'react';
 import { IRolesReslut, IUsersReslut, IUserUpdateRequest } from '../../src/interfaces';
 import { routes } from '../../src/routes';
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
 export default function User() {
     const router = useRouter()

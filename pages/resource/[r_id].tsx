@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react';
 import Create_Model from '../../components/create_model';
-import { fetcher } from '../../src/fetcher';
-import { IActionCreateRequest, IActionsReslut, IResourcesReslut, IResourcesResponse } from '../../src/interfaces';
+import { IActionCreateRequest, IActionsReslut, IResourcesReslut } from '../../src/interfaces';
 import { routes } from '../../src/routes';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
