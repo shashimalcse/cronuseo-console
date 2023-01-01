@@ -72,6 +72,11 @@ export interface IUserCreateRequest {
     lastname: string;
 }
 
+export interface IUserUpdateRequest {
+    firstname: string;
+    lastname: string;
+}
+
 export interface IRolesResponse {
     cursor: number;
     limit: number;

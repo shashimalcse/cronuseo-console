@@ -39,7 +39,6 @@ export default function Resource() {
     })
 
     const submitAction = async () => {
-        console.log(action)
         const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },

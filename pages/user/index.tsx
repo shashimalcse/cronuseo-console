@@ -92,7 +92,7 @@ export default function Users() {
                                                 <tr key={user.username}>
 
                                                     <td className="px-10 py-2 text-left text-gray-800 whitespace-nowrap">
-                                                        <Link href={"/resource/" + user.user_id}>
+                                                        <Link href={"/user/" + user.user_id}>
                                                             {user.username}
                                                         </Link>
                                                     </td>
