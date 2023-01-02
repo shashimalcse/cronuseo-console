@@ -4,27 +4,35 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import Create_Model from '../../components/create_model'
 import { useState, useEffect } from 'react'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { IUserCreateRequest, IUsersReslut } from '../../src/interfaces'
+import { IRolesReslut, IUserCreateRequest, IUsersReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
 import Link from 'next/link'
-import Dropdown from '../../components/multi_select_dropdown'
-import { SelectOption } from "../../components/multi_select_dropdown"
+import Select from 'react-select'
+
+type RoleOption  = {
+    label: string,
+    value: string,
+    id: string,
+}
 
 export default function Users() {
     const [showModal, setShowModel] = useState(false)
     const [users, setUsers] = useState<IUsersReslut[] | undefined>(undefined)
+    const [roles, setRoles] = useState<IRolesReslut[]>([])
+    const [roleOptions, setRoleOptions] = useState<RoleOption[]>([])
     const [user, setUser] = useState<IUserCreateRequest>({ username: "", firstname: "", lastname: "" })
 
     const submitUser = async () => {
-        const response = await fetch(routes.user, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
-            body: JSON.stringify(user)
-        })
-        if (response.status == 201) {
-            setUser({ username: "", firstname: "", lastname: "" })
-            setShowModel(false)
-        }
+        // const response = await fetch(routes.user, {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json ; charset=utf8' },
+        //     body: JSON.stringify(user)
+        // })
+        // if (response.status == 201) {
+        //     setUser({ username: "", firstname: "", lastname: "" })
+        //     setShowModel(false)
+        // }
+        console.log(selectedOptions)
 
     }
 
@@ -43,15 +51,42 @@ export default function Users() {
 
     })
 
-    const options = [
-        { label: "Role 1", value: "role1" },
-        { label: "Role 2", value: "role2" },
-        { label: "Role 3", value: "role3" },
-    ]
+    useEffect(() => {
+        fetch(routes.role)
+            .then((res) => res.json())
+            .then((data) => {
+                setRoles(data?.results)
+            })
+    }, [])
 
-    const [value, setValue] = useState<SelectOption | undefined>(options[0])
+    useEffect(()=> {
+        if (roles.length > 0 ) {
+            const options = roles.map(role => {
+                return {label: role.name, value: role.role_key, id: role.role_id}
+            }) 
+            setRoleOptions(options)   
+        }
+    })
+
+    const [selectedOptions, setSelectedOptions] = useState();
+    function handleSelect(data: any) {
+        setSelectedOptions(data);
+    }
+    const customStyles = {
+        option: (defaultStyles: any, state: any) => ({
+            ...defaultStyles,
+        }),
+
+        control: (defaultStyles: any) => ({
+            ...defaultStyles,
+            backgroundColor: "#4B5563",
+            border: "solid #71717A",
+            fontSize: "12px"
 
 
+        }),
+        singleValue: (defaultStyles: any) => ({ ...defaultStyles, color: "#fff" }),
+    };
     if (!users) return <div>loading...</div>
     return (
         <div className='flex flex-col'>
@@ -132,21 +167,22 @@ export default function Users() {
             }>
                 <div tabIndex={0}>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                    <input type="text" value={user.username} onChange={(e) => setUser({ username: e.target.value, firstname: user.firstname, lastname: user.lastname })} id="username" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={user.username} onChange={(e) => setUser({ username: e.target.value, firstname: user.firstname, lastname: user.lastname })} id="username" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
-                    <input type="text" value={user.firstname} onChange={(e) => setUser({ firstname: e.target.value, username: user.username, lastname: user.lastname })} id="firstname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={user.firstname} onChange={(e) => setUser({ firstname: e.target.value, username: user.username, lastname: user.lastname })} id="firstname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
-                    <input type="text" value={user.lastname} onChange={(e) => setUser({ lastname: e.target.value, username: user.username, firstname: user.firstname })} id="lastname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={user.lastname} onChange={(e) => setUser({ lastname: e.target.value, username: user.username, firstname: user.firstname })} id="lastname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
                 </div>
-                <div>
+                {roles.length > 0 ? <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Roles for User</label>
-                    <Dropdown options={options} value={value}
-                        onChange={o => setValue(o)} />
-                </div>
+                    <Select options={roleOptions} isMulti value={selectedOptions} onChange={handleSelect}
+                        styles={customStyles} />
+                </div> : null}
+
                 <div className='flex flex-grow flex-row justify-end items-center'>
                     <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitUser() }}>
                         Create
