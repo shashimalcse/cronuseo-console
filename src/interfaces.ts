@@ -73,16 +73,16 @@ export interface IUserCreateRequest {
     roles?: IUserCreateRole[]
 }
 
+export interface IUserUpdateRequest {
+    firstname?: string;
+    lastname?: string;
+    roles?: IUserCreateRole[]
+}
+
 export interface IUserCreateRole {
     role_id: string
 }
 
-
-
-export interface IUserUpdateRequest {
-    firstname: string;
-    lastname: string;
-}
 
 export interface IRolesResponse {
     cursor: number;
