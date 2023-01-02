@@ -9,7 +9,7 @@ import { routes } from '../../src/routes';
 import Link from 'next/link'
 import Select from 'react-select'
 
-type RoleOption  = {
+export type RoleOption  = {
     label: string,
     value: string,
     id: string,
