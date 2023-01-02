@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react';
+import Create_Model from '../../components/create_model';
 import { IRolesReslut, IUsersReslut, IUserUpdateRequest } from '../../src/interfaces';
 import { routes } from '../../src/routes';
 
@@ -56,7 +57,7 @@ export default function User() {
                     <div className='flex'>
                         {
                             !showRoles ?
-                                <div className='flex flex-col flex-grow justify-between m-5'>
+                                <div className='flex flex-col flex-grow justify-between m-5 gap-2'>
                                     <div>
                                         <label className="block mb-2 text-xs font-medium">First Name</label>
                                         <input type="text" value={name.firstname} onChange={(e) => setName({ firstname: e.target.value, lastname: name.lastname })} id="firstname" className="block w-[300px] p-2 border rounded-lg sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='First Name' required />
@@ -115,6 +116,25 @@ export default function User() {
                         }
                     </div>
                 </div>
+                {/* <Create_Model title='Create a Resource' isVisible={showRoles} onClose={() => {
+                    setAction({ name: "", action_key: "" })
+                    showRoles(false)
+                }
+                }>
+                    <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
+                        <input type="text" value={action.name} onChange={(e) => setAction({ name: e.target.value, action_key: action.action_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    </div>
+                    <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
+                        <input type="text" value={action.action_key} onChange={(e) => setAction({ name: action.name, action_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    </div>
+                    <div className='flex flex-grow flex-row justify-end items-center'>
+                        <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitAction() }}>
+                            Create
+                        </button>
+                    </div>
+                </Create_Model> */}
             </div>
         </div>
     )

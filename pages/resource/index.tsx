@@ -3,12 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import Create_Model from '../../components/create_model'
 import { useState, useEffect } from 'react'
-import { Column, useTable } from 'react-table'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import useSWR, { Key, Fetcher } from 'swr'
-import { IResourceCreateRequest, IResourcesReslut, IResourcesResponse } from '../../src/interfaces'
+import { IResourceCreateRequest, IResourcesReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
-import { fetcher } from '../../src/fetcher'
 import Link from 'next/link'
 
 export default function Resources() {

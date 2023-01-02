@@ -7,6 +7,8 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { IUserCreateRequest, IUsersReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
 import Link from 'next/link'
+import Dropdown from '../../components/multi_select_dropdown'
+import { SelectOption } from "../../components/multi_select_dropdown"
 
 export default function Users() {
     const [showModal, setShowModel] = useState(false)
@@ -40,6 +42,15 @@ export default function Users() {
             })
 
     })
+
+    const options = [
+        { label: "Role 1", value: "role1" },
+        { label: "Role 2", value: "role2" },
+        { label: "Role 3", value: "role3" },
+    ]
+
+    const [value, setValue] = useState<SelectOption | undefined>(options[0])
+
 
     if (!users) return <div>loading...</div>
     return (
@@ -119,17 +130,22 @@ export default function Users() {
                 setShowModel(false)
             }
             }>
-                <div>
+                <div tabIndex={0}>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                    <input type="text" value={user.username} onChange={(e) => setUser({ username: e.target.value, firstname: user.firstname, lastname: user.lastname })} id="username" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={user.username} onChange={(e) => setUser({ username: e.target.value, firstname: user.firstname, lastname: user.lastname })} id="username" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
-                    <input type="text" value={user.firstname} onChange={(e) => setUser({ firstname: e.target.value, username: user.username, lastname: user.lastname })} id="firstname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={user.firstname} onChange={(e) => setUser({ firstname: e.target.value, username: user.username, lastname: user.lastname })} id="firstname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
-                    <input type="text" value={user.lastname} onChange={(e) => setUser({ lastname: e.target.value, username: user.username, firstname: user.firstname })} id="lastname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={user.lastname} onChange={(e) => setUser({ lastname: e.target.value, username: user.username, firstname: user.firstname })} id="lastname" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs hover:border-yellow-500 focus:outline-none focus:border-yellow-500 focus:ring-yellow-500" placeholder='Resource Name' />
+                </div>
+                <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Roles for User</label>
+                    <Dropdown options={options} value={value}
+                        onChange={o => setValue(o)} />
                 </div>
                 <div className='flex flex-grow flex-row justify-end items-center'>
                     <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitUser() }}>
@@ -140,3 +156,5 @@ export default function Users() {
         </div>
     )
 }
+
+
