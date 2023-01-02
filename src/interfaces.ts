@@ -70,7 +70,14 @@ export interface IUserCreateRequest {
     username: string;
     firstname: string;
     lastname: string;
+    roles?: IUserCreateRole[]
 }
+
+export interface IUserCreateRole {
+    role_id: string
+}
+
+
 
 export interface IUserUpdateRequest {
     firstname: string;

@@ -20,19 +20,23 @@ export default function Users() {
     const [users, setUsers] = useState<IUsersReslut[] | undefined>(undefined)
     const [roles, setRoles] = useState<IRolesReslut[]>([])
     const [roleOptions, setRoleOptions] = useState<RoleOption[]>([])
-    const [user, setUser] = useState<IUserCreateRequest>({ username: "", firstname: "", lastname: "" })
+    const [selectedOptions, setSelectedOptions] = useState<RoleOption[]>([])
+    const [user, setUser] = useState<IUserCreateRequest>({ username: "", firstname: "", lastname: "", roles: [] })
 
     const submitUser = async () => {
-        // const response = await fetch(routes.user, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json ; charset=utf8' },
-        //     body: JSON.stringify(user)
-        // })
-        // if (response.status == 201) {
-        //     setUser({ username: "", firstname: "", lastname: "" })
-        //     setShowModel(false)
-        // }
-        console.log(selectedOptions)
+        const role_ids = selectedOptions.map( role => {
+            return {role_id : role.id}
+        })
+        user.roles = role_ids
+        const response = await fetch(routes.user, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            body: JSON.stringify(user)
+        })
+        if (response.status == 201) {
+            setUser({ username: "", firstname: "", lastname: "" })
+            setShowModel(false)
+        }
 
     }
 
@@ -48,7 +52,6 @@ export default function Users() {
             .then((data) => {
                 setUsers(data?.results)
             })
-
     })
 
     useEffect(() => {
@@ -66,9 +69,8 @@ export default function Users() {
             }) 
             setRoleOptions(options)   
         }
-    })
+    },[roles])
 
-    const [selectedOptions, setSelectedOptions] = useState();
     function handleSelect(data: any) {
         setSelectedOptions(data);
     }
