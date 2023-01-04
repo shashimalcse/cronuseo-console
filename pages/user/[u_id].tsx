@@ -7,30 +7,51 @@ import { RoleOption } from '.';
 import Create_Model from '../../components/create_model';
 import { IRolesReslut, IUserCreateRequest, IUsersReslut, IUserUpdateRequest } from '../../src/interfaces';
 import { routes } from '../../src/routes';
-import Select from 'react-select'
+import Select from 'react-select';
+import { update } from 'lodash';
 
 export default function User() {
     const router = useRouter()
     const { u_id } = router.query
     const [user, setUser] = useState<IUsersReslut>()
     const [showRoles, setShowRoles] = useState(false)
-    const [updateUser, setUpdateUser] = useState<IUserUpdateRequest>({ firstname: "", lastname: "" , roles: []})
+    const [updateUser, setUpdateUser] = useState<IUserUpdateRequest>({ firstname: "", lastname: "", roles: [] })
     const [roles, setRoles] = useState<IRolesReslut[]>([])
     const [assignedRoles, setassignedRoles] = useState<IRolesReslut[]>([])
     const [roleOptions, setRoleOptions] = useState<RoleOption[]>([])
     const [selectedOptions, setSelectedOptions] = useState<RoleOption[]>([])
+    const [patchAddRoles, setPatchAddRoles] = useState<RoleOption[]>([])
+    const [patchRemoveRoles, setPatchRemoveRoles] = useState<RoleOption[]>([])
+    const [assignedRoleOptions, setAssignedRoleOptions] = useState<RoleOption[]>([])
 
     const submitUpdateUser = async () => {
-        const role_ids = selectedOptions.map( role => {
-            return {role_id : role.id}
+        const addroles = getDifference(patchAddRoles, assignedRoleOptions);
+        const patchRequest = {
+            operations: [
+                {
+                    op: "add",
+                    path: "roles",
+                    values: addroles.map(role => ({ value : role.id}))
+                },
+                {
+                    op: "remove",
+                    path: "roles",
+                    values: patchRemoveRoles.map(role => ({ value : role.id}))
+                },
+            ]
+        }
+        console.log(JSON.stringify(patchRequest))
+        await fetch(routes.user + `/${u_id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            body: JSON.stringify(updateUser)
         })
-        updateUser.roles = role_ids
-        console.log(updateUser)
-        // const response = await fetch(routes.user, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json ; charset=utf8' },
-        //     body: JSON.stringify(updateUser)
-        // })
+
+        await fetch(routes.user + `/${u_id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            body: JSON.stringify(patchRequest)
+        })
     }
 
     useEffect(() => {
@@ -38,7 +59,7 @@ export default function User() {
             .then((res) => res.json())
             .then((data) => {
                 setUser(data)
-                setUpdateUser({firstname: user?.firstname, lastname: user?.lastname})
+                setUpdateUser(prev => ({ ...prev, firstname: data?.firstname, lastname: data?.lastname }))
             })
     }, [])
 
@@ -55,6 +76,7 @@ export default function User() {
             .then((res) => res.json())
             .then((data) => {
                 setRoles(data?.results)
+
             })
     }, [])
 
@@ -67,12 +89,77 @@ export default function User() {
             const assignedOptions = assignedRoles.map(role => {
                 return { label: role.name, value: role.role_key, id: role.role_id }
             })
+            setAssignedRoleOptions(assignedOptions)
             setSelectedOptions(assignedOptions)
         }
     }, [roles])
 
     function handleSelect(data: any) {
+        if (selectedOptions.length == 0) {
+            setPatchRemoveRoles([])
+            setPatchAddRoles(data)
+        } else {
+            if (data.length == 0) {
+                let removedOption = getDifference(selectedOptions, [])[0];
+                var array = [...patchAddRoles];
+                var index = array.indexOf(removedOption)
+                if (index !== -1) {
+                    array.splice(index, 1);
+                    setPatchAddRoles(array);
+                } else {
+                    setPatchRemoveRoles(prev => {
+                        prev.push(removedOption)
+                        return [...prev]
+                    })
+                }
+            } else {
+                if (selectedOptions.length < data.length) {
+                    let addedOption = getDifference(data, selectedOptions)[0];
+                    var array = [...patchRemoveRoles];
+                    var index = array.indexOf(addedOption)
+                    if (index !== -1) {
+                        array.splice(index, 1);
+                        setPatchRemoveRoles(array);
+                    }
+                    var array = [...patchAddRoles];
+                    var index = array.indexOf(addedOption)
+                    if (index !== -1) {
+
+                    } else {
+                        setPatchAddRoles(prev => {
+                            prev.push(addedOption)
+                            return [...prev]
+                        })
+                    }
+                } else {
+                    let removedOption = getDifference(selectedOptions, data)[0];
+                    var array = [...patchAddRoles];
+                    var index = array.indexOf(removedOption)
+                    if (index !== -1) {
+                        array.splice(index, 1);
+                        setPatchAddRoles(array);
+                    } else {
+                        setPatchRemoveRoles(prev => {
+                            prev.push(removedOption)
+                            return [...prev]
+                        })
+                    }
+
+                }
+            }
+        }
+
+
         setSelectedOptions(data);
+    }
+
+
+    function getDifference(a: RoleOption[], b: RoleOption[]): RoleOption[] {
+        return a.filter(element1 => {
+            return !b.some(element2 => {
+                return element1.value === element2.value;
+            });
+        });
     }
     const customStyles = {
         option: (defaultStyles: any, state: any) => ({
@@ -129,7 +216,7 @@ export default function User() {
                             </div> : null}
                         </div>
                         <div className='flex justify-end'>
-                            <button className='bg-black rounded-md px-6 py-2 mb-5 mr-5 text-white text-xs' onClick={()=> submitUpdateUser()}>
+                            <button className='bg-black rounded-md px-6 py-2 mb-5 mr-5 text-white text-xs' onClick={() => submitUpdateUser()}>
                                 Save Changes
                             </button>
                         </div>
