@@ -8,11 +8,10 @@ import Create_Model from '../../components/create_model';
 import { IRolesReslut, IUserCreateRequest, IUsersReslut, IUserUpdateRequest } from '../../src/interfaces';
 import { routes } from '../../src/routes';
 import Select from 'react-select';
-import { update } from 'lodash';
+
 
 export default function User() {
     const router = useRouter()
-    const { u_id } = router.query
     const [user, setUser] = useState<IUsersReslut>()
     const [showRoles, setShowRoles] = useState(false)
     const [updateUser, setUpdateUser] = useState<IUserUpdateRequest>({ firstname: "", lastname: "", roles: [] })
@@ -41,13 +40,13 @@ export default function User() {
             ]
         }
         console.log(JSON.stringify(patchRequest))
-        await fetch(routes.user + `/${u_id}`, {
+        await fetch(routes.user + `/${user?.user_id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
             body: JSON.stringify(updateUser)
         })
 
-        await fetch(routes.user + `/${u_id}`, {
+        await fetch(routes.user + `/${user?.user_id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
             body: JSON.stringify(patchRequest)
@@ -55,21 +54,30 @@ export default function User() {
     }
 
     useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        const { u_id } = router.query
         fetch(routes.user + `/${u_id}`)
             .then((res) => res.json())
             .then((data) => {
                 setUser(data)
                 setUpdateUser(prev => ({ ...prev, firstname: data?.firstname, lastname: data?.lastname }))
             })
-    }, [])
+    },[router.isReady])
 
     useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        console.log("here")
+        const { u_id } = router.query
         fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role/${u_id}`)
             .then((res) => res.json())
             .then((data) => {
                 setassignedRoles(data?.results)
             })
-    }, [])
+    },[router.isReady])
 
     useEffect(() => {
         fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role`)
@@ -86,13 +94,15 @@ export default function User() {
                 return { label: role.name, value: role.role_key, id: role.role_id }
             })
             setRoleOptions(options)
-            const assignedOptions = assignedRoles.map(role => {
-                return { label: role.name, value: role.role_key, id: role.role_id }
-            })
-            setAssignedRoleOptions(assignedOptions)
-            setSelectedOptions(assignedOptions)
+            if (assignedRoles && assignedRoles.length > 0) {
+                const assignedOptions = assignedRoles.map(role => {
+                    return { label: role.name, value: role.role_key, id: role.role_id }
+                })
+                setAssignedRoleOptions(assignedOptions)
+                setSelectedOptions(assignedOptions)
+            }
         }
-    }, [roles])
+    }, [roles, assignedRoles])
 
     function handleSelect(data: any) {
         if (selectedOptions.length == 0) {
