@@ -101,3 +101,17 @@ export interface IRolesReslut {
     updated_at: string;
 }
 
+export interface IRolesReslut {
+    role_id: string;
+    name: string;
+    role_key: string;
+    org_id: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface IRoleCreateRequest {
+    name: string;
+    role_key: string;
+}
+

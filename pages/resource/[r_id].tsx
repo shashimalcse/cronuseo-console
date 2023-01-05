@@ -10,7 +10,6 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
 export default function Resource() {
     const router = useRouter()
-    const { r_id } = router.query
     const [resource, setResource] = useState<IResourcesReslut | undefined>(undefined)
     const [showCreateAction, setShowCreateAction] = useState(false)
     const [name, setName] = useState("")
@@ -19,15 +18,23 @@ export default function Resource() {
     const [action, setAction] = useState<IActionCreateRequest>({ name: "", action_key: "" })
 
     useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        const { r_id } = router.query
         fetch(routes.resource + `/${r_id}`)
             .then((res) => res.json())
             .then((data) => {
                 setResource(data)
                 setName(data.name)
             })
-    }, [])
+    }, [router.isReady])
 
     useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        const { r_id } = router.query
         if (showCreateAction) {
             fetch(`http://localhost:8080/api/v1/${r_id}/action`)
                 .then((res) => res.json())
@@ -35,9 +42,10 @@ export default function Resource() {
                     setActions(data?.results)
                 })
         }
-    })
+    },[[router.isReady]])
 
     const submitAction = async () => {
+        const { r_id } = router.query
         const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
@@ -51,6 +59,7 @@ export default function Resource() {
     }
 
     const deleteAction = async (action_id: string) => {
+        const { r_id } = router.query
         const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action/${action_id}`, {
             method: 'DELETE',
         })

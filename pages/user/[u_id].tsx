@@ -70,7 +70,6 @@ export default function User() {
         if (!router.isReady) {
             return;
         }
-        console.log("here")
         const { u_id } = router.query
         fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role/${u_id}`)
             .then((res) => res.json())
