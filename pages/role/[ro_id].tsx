@@ -6,8 +6,9 @@ import { useState, useEffect } from "react";
 import Create_Model from "../../components/create_model";
 import { routes } from "../../src/routes";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { IResourcesReslut, IRolesReslut } from "../../src/interfaces";
+import { IActionsReslut, IResourcesReslut, IRolesReslut } from "../../src/interfaces";
 import Select from 'react-select';
+import { RoleOption } from "../user";
 
 export default function Role() {
   const router = useRouter();
@@ -22,28 +23,29 @@ export default function Role() {
       return;
     }
     const { ro_id } = router.query;
-    console.log(routes.role + `/${ro_id}`)
     fetch(routes.role + `/${ro_id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
         setRole(data);
         setName(data.name);
       });
   }, [router.isReady]);
 
   useEffect(() => {
+    fetchRoles()
+  }, [])
+
+  const fetchRoles = async () => {
     fetch(routes.resource)
-    .then((res) => res.json())
-    .then((data) => {
+      .then((res) => res.json())
+      .then((data) => {
         setResources(data?.results)
-    })
-    
-})
+      })
+  }
 
   return (
     <div className="">
-      <div className="flex flex-col">
+      <div className="flex flex-col ">
         <div className="flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4">
           <div className="flex flex-row justify-between items-center gap-5">
             <Link href={"/role"}>
@@ -131,11 +133,11 @@ export default function Role() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col flex-grow justify-between m-5">
+              <div className="flex flex-col flex-grow justify-between m-5 overflow-y-auto">
                 <div className="flex flex-col">
                   {resources?.map(resource => {
                     return (
-                      <Permission resource={resource} role={role}/>
+                      <Permission resource={resource} role={role} key={resource.resource_key} />
                     )
                   })}
                 </div>
@@ -199,15 +201,178 @@ export default function Role() {
   );
 }
 
+export type ActionOption = {
+  label: string,
+  value: string,
+  id: string,
+}
 
-const Permission = ({resource, role}:any) => {
+const Permission = ({ resource, role }: any) => {
+  const [actions, setActions] = useState<IActionsReslut[]>()
+  const [actionOptions, setActionOptions] = useState<ActionOption[]>([])
+  const [selectedOptions, setSelectedOptions] = useState<ActionOption[]>([])
+  const [patchAddActions, setPatchAddActions] = useState<ActionOption[]>([])
+  const [patchRemoveActions, setPatchRemoveActions] = useState<ActionOption[]>([])
+  const [assignedActionOptions, setAssignedActionOptions] = useState<ActionOption[]>([])
+  const [isChangeHappened, setIsChangeHappened] = useState(false)
+
+  useEffect(() => {
+    fetchActions()
+  }, [!actions])
+  useEffect(() => {
+    fetchAllowedActions()
+  }, [!actions])
+
+  const fetchActions = async () => {
+
+    await fetch(`http://localhost:8080/api/v1/${resource.resource_id}/action`)
+      .then((res) => res.json())
+      .then((data) => {
+        setActions(data.results)
+      })
+    const options = actions?.map(action => {
+      return { label: action.name, value: action.action_key, id: action.action_id }
+    })
+    if (options) {
+      setActionOptions(options)
+    }
+  }
+
+  const fetchAllowedActions = async () => {
+
+    const actions_keys = actions?.map(action => action.action_key)
+    if (actions) {
+      await fetch(routes.permission + `/check_actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json ; charset=utf8' },
+        body: JSON.stringify({ role: role.role_key, resource: resource.resource_key, actions: actions_keys })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const options = data?.map((val: string) => {
+            const action = actions.find(action => action.action_key === val)
+            if (action) {
+              return { label: action.name, value: action.action_key, id: action.action_id }
+            }
+          })
+          if (options) {
+            setSelectedOptions(options)
+            setAssignedActionOptions(options)
+          }
+        })
+    }
+  }
+
+  function getDifference(a: ActionOption[], b: ActionOption[]): ActionOption[] {
+    return a.filter(element1 => {
+      return !b.some(element2 => {
+        return element1.value === element2.value;
+      });
+    });
+  }
+
+  function handleSelect(data: any) {
+    if (selectedOptions.length == 0) {
+      setPatchRemoveActions([])
+      setPatchAddActions(data)
+    } else {
+      if (data.length == 0) {
+        let removedOption = getDifference(selectedOptions, [])[0];
+        var array = [...patchAddActions];
+        var index = array.indexOf(removedOption)
+        if (index !== -1) {
+          array.splice(index, 1);
+          setPatchAddActions(array);
+        } else {
+          setPatchRemoveActions(prev => {
+            prev.push(removedOption)
+            return [...prev]
+          })
+        }
+      } else {
+        if (selectedOptions.length < data.length) {
+          let addedOption = getDifference(data, selectedOptions)[0];
+          var array = [...patchRemoveActions];
+          var index = array.indexOf(addedOption)
+          if (index !== -1) {
+            array.splice(index, 1);
+            setPatchRemoveActions(array);
+          }
+          var array = [...patchAddActions];
+          var index = array.indexOf(addedOption)
+          if (index !== -1) {
+
+          } else {
+            setPatchAddActions(prev => {
+              prev.push(addedOption)
+              return [...prev]
+            })
+          }
+        } else {
+          let removedOption = getDifference(selectedOptions, data)[0];
+          var array = [...patchAddActions];
+          var index = array.indexOf(removedOption)
+          if (index !== -1) {
+            array.splice(index, 1);
+            setPatchAddActions(array);
+          } else {
+            setPatchRemoveActions(prev => {
+              prev.push(removedOption)
+              return [...prev]
+            })
+          }
+
+        }
+      }
+    }
+    setSelectedOptions(data);
+    const selected = [...data]
+    const assigned = [...assignedActionOptions]
+    const diff = getDifference(selected, assigned)
+    if (diff.length>0) {
+      setIsChangeHappened(true)
+    } else{
+      setIsChangeHappened(false)
+    }
+  }
+
+  const updatePermission = async () => {
+    const addActions = getDifference(patchAddActions, assignedActionOptions);
+    const patchRequest = {
+      operations: [
+        {
+          op: "add",
+          permisssions: addActions.map(action => ({ role: role.role_key, resource: resource.resource_key, action: action.value }))
+        },
+        {
+          op: "remove",
+          permisssions: patchRemoveActions.map(action => ({ role: role.role_key, resource: resource.resource_key, action: action.value }))
+        },
+      ]
+    }
+    console.log(patchRequest)
+    await fetch(routes.permission + `/update`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json ; charset=utf8' },
+      body: JSON.stringify(patchRequest)
+    })
+    fetchAllowedActions()
+    setIsChangeHappened(false)
+
+  }
+
   return (
     <div className="flex flex-col gap-5 border border-bg-200 rounded p-5 mt-5">
       <div className="flex flex-grow justify-start text-lg font-semibold">
         {resource.name}
       </div>
-      <div>
-      <Select/>
+      <div className="z-1">
+        <Select options={actionOptions} isMulti value={selectedOptions} onChange={handleSelect} />
+      </div>
+      <div className='flex flex-grow flex-row justify-end items-center'>
+        <button className={`${isChangeHappened ? "bg-black " : "bg-gray-500 "} rounded-md px-6 py-2 text-white text-xs`} onClick={isChangeHappened ? () => updatePermission() : () => { }}>
+          Save Changes
+        </button>
       </div>
     </div>
   )

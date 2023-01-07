@@ -23,23 +23,28 @@ export default function Resources() {
             setResource({ name: "", resource_key: "" })
             setShowModel(false)
         }
+        fetchResources()
 
     }
 
     const deleteResource = async (resource_id: string) => {
-        const response = await fetch(routes.resource + `/${resource_id}`, {
+        await fetch(routes.resource + `/${resource_id}`, {
             method: 'DELETE',
         })
+        fetchResources()
     }
 
     useEffect(() => {
-        fetch(routes.resource)
+        fetchResources()
+    },[])
+
+    const fetchResources = async () => {
+       await fetch(routes.resource)
         .then((res) => res.json())
         .then((data) => {
             setResources(data?.results)
         })
-        
-    })
+    }
 
     if (!resources) return <div>loading...</div>
     return (

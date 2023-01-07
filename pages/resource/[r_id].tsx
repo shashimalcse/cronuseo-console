@@ -30,19 +30,14 @@ export default function Resource() {
             })
     }, [router.isReady])
 
-    useEffect(() => {
-        if (!router.isReady) {
-            return;
-        }
+    const fetchActions = async () => {
         const { r_id } = router.query
-        if (showCreateAction) {
-            fetch(`http://localhost:8080/api/v1/${r_id}/action`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setActions(data?.results)
-                })
-        }
-    },[[router.isReady]])
+        await             fetch(`http://localhost:8080/api/v1/${r_id}/action`)
+        .then((res) => res.json())
+        .then((data) => {
+            setActions(data?.results)
+        })
+     }
 
     const submitAction = async () => {
         const { r_id } = router.query
@@ -89,7 +84,10 @@ export default function Resource() {
                             <li className="mr-2" onClick={() => { setShowCreateAction(false) }}>
                                 <a href="#" className={(!showCreateAction ? "text-yellow-400 border-yellow-400" : "hover:text-gray-600 hover:border-gray-300") + " inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Settings</a>
                             </li>
-                            <li className="mr-2" onClick={() => { setShowCreateAction(true) }}>
+                            <li className="mr-2" onClick={() => { 
+                                setShowCreateAction(true);
+                                fetchActions() 
+                                }}>
                                 <a href="#" className={(showCreateAction ? "text-yellow-400 border-yellow-400" : "hover:text-gray-600 hover:border-gray-300") + " inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Actions</a>
                             </li>
                         </ul>

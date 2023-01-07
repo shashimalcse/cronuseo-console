@@ -16,7 +16,7 @@ export default function User() {
     const [showRoles, setShowRoles] = useState(false)
     const [updateUser, setUpdateUser] = useState<IUserUpdateRequest>({ firstname: "", lastname: "", roles: [] })
     const [roles, setRoles] = useState<IRolesReslut[]>([])
-    const [assignedRoles, setassignedRoles] = useState<IRolesReslut[]>([])
+    const [assignedRoles, setAssignedRoles] = useState<IRolesReslut[]>([])
     const [roleOptions, setRoleOptions] = useState<RoleOption[]>([])
     const [selectedOptions, setSelectedOptions] = useState<RoleOption[]>([])
     const [patchAddRoles, setPatchAddRoles] = useState<RoleOption[]>([])
@@ -74,7 +74,7 @@ export default function User() {
         fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role/user/${u_id}`)
             .then((res) => res.json())
             .then((data) => {
-                setassignedRoles(data?.results)
+                setAssignedRoles(data?.results)
             })
     },[router.isReady])
 

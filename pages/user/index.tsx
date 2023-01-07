@@ -37,22 +37,28 @@ export default function Users() {
             setUser({ username: "", firstname: "", lastname: "" })
             setShowModel(false)
         }
+        fetchUsers()
 
     }
 
     const deleteUser = async (user_id: string) => {
-        const response = await fetch(routes.user + `/${user_id}`, {
+        await fetch(routes.user + `/${user_id}`, {
             method: 'DELETE',
         })
+        fetchUsers()
     }
 
     useEffect(() => {
-        fetch(routes.user)
-            .then((res) => res.json())
-            .then((data) => {
-                setUsers(data?.results)
-            })
-    })
+        fetchUsers()
+    },[])
+
+    const fetchUsers = async () => {
+        await fetch(routes.user)
+        .then((res) => res.json())
+        .then((data) => {
+            setUsers(data?.results)
+        })
+     }
 
     useEffect(() => {
         fetch(routes.role)

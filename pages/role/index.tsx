@@ -23,23 +23,30 @@ export default function Role() {
             setRole({ name: "", role_key: "" })
             setShowModel(false)
         }
+        fetchRoles()
 
     }
 
     const deleteResource = async (role_id: string) => {
-        const response = await fetch(routes.role + `/${role_id}`, {
+        await fetch(routes.role + `/${role_id}`, {
             method: 'DELETE',
         })
+        fetchRoles()
     }
 
     useEffect(() => {
+        fetchRoles()
+        
+    },[])
+
+    const fetchRoles = async () => {
         fetch(routes.role)
         .then((res) => res.json())
         .then((data) => {
             setRoles(data?.results)
         })
-        
-    })
+     }
+
 
     if (!roles) return <div>loading...</div>
     return (
