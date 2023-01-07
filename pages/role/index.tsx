@@ -4,57 +4,59 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import Create_Model from '../../components/create_model'
 import { useState, useEffect } from 'react'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { IResourceCreateRequest, IResourcesReslut } from '../../src/interfaces'
+import { IRoleCreateRequest, IRolesReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
 import Link from 'next/link'
 
-export default function Resources() {
+export default function Role() {
     const [showModal, setShowModel] = useState(false)
-    const [resources, setResources] = useState<IResourcesReslut[] | undefined>(undefined)
-    const [resource, setResource] = useState<IResourceCreateRequest>({ name: "", resource_key: "" })
+    const [roles, setRoles] = useState<IRolesReslut[] | undefined>(undefined)
+    const [role, setRole] = useState<IRoleCreateRequest>({ name: "", role_key: "" })
 
     const submitResource = async () => {
-        const response = await fetch(routes.resource, {
+        const response = await fetch(routes.role, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
-            body: JSON.stringify(resource)
+            body: JSON.stringify(role)
         })
         if(response.status==201) {
-            setResource({ name: "", resource_key: "" })
+            setRole({ name: "", role_key: "" })
             setShowModel(false)
         }
-        fetchResources()
+        fetchRoles()
 
     }
 
-    const deleteResource = async (resource_id: string) => {
-        await fetch(routes.resource + `/${resource_id}`, {
+    const deleteResource = async (role_id: string) => {
+        await fetch(routes.role + `/${role_id}`, {
             method: 'DELETE',
         })
-        fetchResources()
+        fetchRoles()
     }
 
     useEffect(() => {
-        fetchResources()
+        fetchRoles()
+        
     },[])
 
-    const fetchResources = async () => {
-       await fetch(routes.resource)
+    const fetchRoles = async () => {
+        fetch(routes.role)
         .then((res) => res.json())
         .then((data) => {
-            setResources(data?.results)
+            setRoles(data?.results)
         })
-    }
+     }
 
-    if (!resources) return <div>loading...</div>
+
+    if (!roles) return <div>loading...</div>
     return (
         <div className='flex flex-col'>
             <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>
-                <h1 className='font-sans text-xl font-bold'>Resources</h1>
+                <h1 className='font-sans text-xl font-bold'>Roles</h1>
                 <button className='bg-black rounded-md px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
                     <div className='flex flex-row justify-between items-center gap-2'>
                         <FontAwesomeIcon icon={faPlus} />
-                        Create a Resource
+                        Create a Role
                     </div>
                 </button>
             </div>
@@ -67,12 +69,12 @@ export default function Resources() {
                                     <tr>
                                         <th className="px-10 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
                                             <a className="">
-                                                Resource Name
+                                                Role Name
                                             </a>
                                         </th>
                                         <th className="px-10 py-3 text-xs font-bold text-left text-gray-500 uppercase ">
                                             <a className="">
-                                                Resource Key
+                                                Role Key
                                             </a>
                                         </th>
                                         <th className="px-10 py-3 text-xs font-bold text-right text-gray-500 uppercase ">
@@ -84,21 +86,21 @@ export default function Resources() {
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {
-                                        resources?.map((resource: IResourcesReslut) => {
+                                        roles?.map((role: IRolesReslut) => {
                                             return (
-                                                <tr key={resource.resource_key}>
+                                                <tr key={role.role_key}>
 
                                                     <td className="px-10 py-2 text-left text-gray-800 whitespace-nowrap">
-                                                        <Link href={"/resource/" + resource.resource_id}>
-                                                            {resource.name}
+                                                        <Link href={"/role/" + role.role_id}>
+                                                            {role.name}
                                                         </Link>
                                                     </td>
 
                                                     <td className="px-10 py-2 text-left text-gray-800 whitespace-nowrap">
-                                                        {resource.resource_key}
+                                                        {role.role_key}
                                                     </td>
                                                     <td className="px-10 py-2 text-right text-gray-800 whitespace-nowrap">
-                                                        <button onClick={() => { deleteResource(resource.resource_id) }}>
+                                                        <button onClick={() => { deleteResource(role.role_id) }}>
                                                             <FontAwesomeIcon icon={faTrash} />
                                                         </button>
                                                     </td>
@@ -112,17 +114,17 @@ export default function Resources() {
                 </div>
             </div>
             <Create_Model title='Create a Resource' isVisible={showModal} onClose={() => {
-                setResource({ name: "", resource_key: "" })
+                setRole({ name: "", role_key: "" })
                 setShowModel(false)
             }
             }>
                 <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
-                    <input type="text" value={resource.name} onChange={(e) => setResource({ name: e.target.value, resource_key: resource.resource_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role Name</label>
+                    <input type="text" value={role.name} onChange={(e) => setRole({ name: e.target.value, role_key: role.role_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
-                    <input type="text" value={resource.resource_key} onChange={(e) => setResource({ name: resource.name, resource_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role Key</label>
+                    <input type="text" value={role.role_key} onChange={(e) => setRole({ name: role.name, role_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div className='flex flex-grow flex-row justify-end items-center'>
                     <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitResource() }}>

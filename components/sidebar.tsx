@@ -29,7 +29,6 @@ export default Sidebar;
 const SidebarItem = ({ title, icon, path }: any) => {
     const router = useRouter()
     const currentRoute = router.pathname
-    console.log(currentRoute === path)
     return (
         <Link href={path} >
             <div className={currentRoute === path ? 
