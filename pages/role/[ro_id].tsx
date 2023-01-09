@@ -325,14 +325,24 @@ const Permission = ({ resource, role }: any) => {
         }
       }
     }
+
     setSelectedOptions(data);
     const selected = [...data]
     const assigned = [...assignedActionOptions]
-    const diff = getDifference(selected, assigned)
-    if (diff.length>0) {
-      setIsChangeHappened(true)
-    } else{
-      setIsChangeHappened(false)
+    if (selected.length> assigned.length) {
+      const diff = getDifference(selected, assigned)
+      if (diff.length>0) {
+        setIsChangeHappened(true)
+      } else{
+        setIsChangeHappened(false)
+      }
+    } else {
+      const diff = getDifference(assigned, selected)
+      if (diff.length>0) {
+        setIsChangeHappened(true)
+      } else{
+        setIsChangeHappened(false)
+      }
     }
   }
 
@@ -350,7 +360,6 @@ const Permission = ({ resource, role }: any) => {
         },
       ]
     }
-    console.log(patchRequest)
     await fetch(routes.permission + `/update`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json ; charset=utf8' },

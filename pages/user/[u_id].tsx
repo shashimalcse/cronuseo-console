@@ -39,7 +39,6 @@ export default function User() {
                 },
             ]
         }
-        console.log(JSON.stringify(patchRequest))
         await fetch(routes.user + `/${user?.user_id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
