@@ -7,6 +7,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { IResourceCreateRequest, IResourcesReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
 import Link from 'next/link'
+import Cookies from 'js-cookie'
 
 export default function Resources() {
     const [showModal, setShowModel] = useState(false)
@@ -17,9 +18,10 @@ export default function Resources() {
         const response = await fetch(routes.resource, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            credentials: 'include',
             body: JSON.stringify(resource)
         })
-        if(response.status==201) {
+        if (response.status == 201) {
             setResource({ name: "", resource_key: "" })
             setShowModel(false)
         }
@@ -36,17 +38,20 @@ export default function Resources() {
 
     useEffect(() => {
         fetchResources()
-    },[])
+    }, [])
 
     const fetchResources = async () => {
-       await fetch(routes.resource)
-        .then((res) => res.json())
-        .then((data) => {
-            setResources(data?.results)
-        })
+        await fetch(routes.resource,
+            {
+                method: 'GET',
+                credentials: 'include',
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                setResources(data?.results)
+            })
     }
 
-    if (!resources) return <div>loading...</div>
     return (
         <div className='flex flex-col'>
             <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>

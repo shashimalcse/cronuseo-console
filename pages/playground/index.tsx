@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import Cookies from 'js-cookie'
+import { useEffect, useState } from 'react'
 import { routes } from '../../src/routes'
 
 export default function Playground() {
@@ -6,7 +7,6 @@ export default function Playground() {
     const [action, setAction] = useState("")
     const [resource, setResource] = useState("")
     const [allowed, setAllowed] = useState<boolean | undefined>(undefined)
-
 
     const check = async () => {
         const tuple = {
@@ -21,7 +21,6 @@ export default function Playground() {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data)
                 setAllowed(data)
             }
             )
