@@ -9,6 +9,7 @@ export default function Login() {
 
   async function handleLogin() {
     const resp =  await fetch(routes.login, {
+      credentials: "include",
       method: 'POST',
       headers: { 'Content-Type': 'application/json ; charset=utf8' },
       body: JSON.stringify(user)
