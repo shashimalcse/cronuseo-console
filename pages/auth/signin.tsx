@@ -1,25 +1,27 @@
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { routes } from "../../src/routes"
-import Cookies from 'js-cookie'
+import { signIn } from "next-auth/react"
+import { redirect } from "next/dist/server/api-utils"
 
 export default function Login() {
   const router = useRouter()
   const [user, setUser] = useState({ username: "", password: "" })
 
   async function handleLogin() {
-    const resp =  await fetch(routes.login, {
-      credentials: "include",
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json ; charset=utf8' },
-      body: JSON.stringify(user)
-    })
+    await signIn('credentials', {username: user.username, password:user.password})
+    // const resp = await fetch(routes.login, {
+    //   credentials: "include",
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json ; charset=utf8' },
+    //   body: JSON.stringify(user)
+    // })
 
-    const json = await resp.json()
+    // const json = await resp.json()
 
-    if (resp.status === 200) {
-      router.replace('/')
-    }
+    // if (resp.status === 200) {
+    //   router.replace('/')
+    // }
   }
 
   return (

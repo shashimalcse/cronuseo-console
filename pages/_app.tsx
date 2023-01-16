@@ -5,7 +5,7 @@ import React from 'react'
 
 export default function App({ Component, pageProps, ...appProps }: AppProps) {
 
-  const isLayoutNeeded = ['/login'].includes(appProps.router.pathname);
+  const isLayoutNeeded = ['/auth/signin'].includes(appProps.router.pathname);
   const LayoutComponent = isLayoutNeeded? React.Fragment : Layout;
   return (
     <LayoutComponent>
