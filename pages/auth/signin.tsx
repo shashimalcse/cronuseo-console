@@ -9,7 +9,8 @@ export default function Login() {
   const [user, setUser] = useState({ username: "", password: "" })
 
   async function handleLogin() {
-    await signIn('credentials', {username: user.username, password:user.password})
+    const res = await signIn('credentials', {username: user.username, password:user.password, redirect:false})
+    console.log(res)
     // const resp = await fetch(routes.login, {
     //   credentials: "include",
     //   method: 'POST',

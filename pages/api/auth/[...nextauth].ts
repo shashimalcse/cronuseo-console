@@ -15,24 +15,57 @@ const authOptions: NextAuthOptions = {
           username: string;
           password: string;
         };
-
         const resp = await fetch(routes.login, {
           credentials: "include",
           method: "POST",
           headers: { "Content-Type": "application/json ; charset=utf8" },
-          body: JSON.stringify({username: username, password: password}),
+          body: JSON.stringify({ username: username, password: password }),
         });
-
         if (resp.status === 200) {
-          const json = await resp.json();
-          return json.data;
+          const data = await resp.json();
+          const token = data.token;
+          const resp2 = await fetch(routes.me, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json ; charset=utf8",
+            },
+          });
+
+          if (resp2.status === 200) {
+            const userData = await resp2.json();
+            const user = { ...userData };
+            return user;
+          } else {
+            throw new Error("Invalid");
+          }
+        } else {
+          throw new Error("Invalid");
         }
       },
     }),
   ],
   pages: {
-    signIn : '/auth/signin'
-  }
+    signIn: "/auth/signin",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.user_id = user.user_id;
+        token.org_id = user.org_id;
+        token.username = user.username;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (token && session.user) {
+        session.user.user_id = token.user_id;
+        session.user.org_id = token.org_id;
+        session.user.username = token.username;
+      }
+      return session;
+    },
+  },
 };
 
 export default NextAuth(authOptions);

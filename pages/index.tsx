@@ -1,9 +1,30 @@
 import { Inter } from '@next/font/google'
+import { useSession } from 'next-auth/react';
 import Link from 'next/link'
+import { Router, useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const router = useRouter()
+  const { status, data } = useSession();
+
+
+  useEffect(() => {
+    if (status === "unauthenticated"){
+      router.replace('/auth/signin')
+    }
+  }, [status]);
+
+  if (status === "authenticated") {
+    return (
+      <div>
+        This page is Protected for special people. like{"\n"}
+        {JSON.stringify(data, null, 2)}
+      </div>
+    );
+  }
   return (
     <div className='flex flex-col'>
       <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>
