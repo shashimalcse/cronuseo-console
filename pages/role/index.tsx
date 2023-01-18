@@ -7,19 +7,34 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { IRoleCreateRequest, IRolesReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
 
 export default function Role() {
     const [showModal, setShowModel] = useState(false)
     const [roles, setRoles] = useState<IRolesReslut[] | undefined>(undefined)
     const [role, setRole] = useState<IRoleCreateRequest>({ name: "", role_key: "" })
 
+    const router = useRouter()
+    const { status, data } = useSession();
+
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace('/auth/signin')
+        }
+    }, [status]);
+
     const submitResource = async () => {
-        const response = await fetch(routes.role, {
+        const response = await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             body: JSON.stringify(role)
         })
-        if(response.status==201) {
+        if (response.status == 201) {
             setRole({ name: "", role_key: "" })
             setShowModel(false)
         }
@@ -28,24 +43,33 @@ export default function Role() {
     }
 
     const deleteResource = async (role_id: string) => {
-        await fetch(routes.role + `/${role_id}`, {
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role` + `/${role_id}`, {
             method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
         })
         fetchRoles()
     }
 
     useEffect(() => {
         fetchRoles()
-        
-    },[])
+
+    }, [])
 
     const fetchRoles = async () => {
-        fetch(routes.role)
-        .then((res) => res.json())
-        .then((data) => {
-            setRoles(data?.results)
+        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
         })
-     }
+            .then((res) => res.json())
+            .then((data) => {
+                setRoles(data?.results)
+            })
+    }
 
 
     if (!roles) return <div>loading...</div>

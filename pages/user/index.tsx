@@ -8,8 +8,10 @@ import { IRolesReslut, IUserCreateRequest, IUsersReslut } from '../../src/interf
 import { routes } from '../../src/routes';
 import Link from 'next/link'
 import Select from 'react-select'
+import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 
-export type RoleOption  = {
+export type RoleOption = {
     label: string,
     value: string,
     id: string,
@@ -17,20 +19,33 @@ export type RoleOption  = {
 
 export default function Users() {
     const [showModal, setShowModel] = useState(false)
-    const [users, setUsers] = useState<IUsersReslut[] | undefined>(undefined)
+    const [users, setUsers] = useState<IUsersReslut[] | undefined>([])
     const [roles, setRoles] = useState<IRolesReslut[]>([])
     const [roleOptions, setRoleOptions] = useState<RoleOption[]>([])
     const [selectedOptions, setSelectedOptions] = useState<RoleOption[]>([])
     const [user, setUser] = useState<IUserCreateRequest>({ username: "", firstname: "", lastname: "", roles: [] })
 
+    const router = useRouter()
+    const { status, data } = useSession();
+
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace('/auth/signin')
+        }
+    }, [status]);
+
     const submitUser = async () => {
-        const role_ids = selectedOptions.map( role => {
-            return {role_id : role.id}
+        const role_ids = selectedOptions.map(role => {
+            return { role_id: role.id }
         })
         user.roles = role_ids
-        const response = await fetch(routes.user, {
+        const response = await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/user`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             body: JSON.stringify(user)
         })
         if (response.status == 201) {
@@ -42,40 +57,56 @@ export default function Users() {
     }
 
     const deleteUser = async (user_id: string) => {
-        await fetch(routes.user + `/${user_id}`, {
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/user` + `/${user_id}`, {
             method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
         })
         fetchUsers()
     }
 
     useEffect(() => {
         fetchUsers()
-    },[])
+    }, [])
 
     const fetchUsers = async () => {
-        await fetch(routes.user)
-        .then((res) => res.json())
-        .then((data) => {
-            setUsers(data?.results)
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/user`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
         })
-     }
+            .then((res) => res.json())
+            .then((data) => {
+                setUsers(data?.results)
+            })
+    }
 
     useEffect(() => {
-        fetch(routes.role)
+        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        })
             .then((res) => res.json())
             .then((data) => {
                 setRoles(data?.results)
             })
     }, [])
 
-    useEffect(()=> {
-        if (roles.length > 0 ) {
-            const options = roles.map(role => {
-                return {label: role.name, value: role.role_key, id: role.role_id}
-            }) 
-            setRoleOptions(options)   
+    useEffect(() => {
+        if (roles) {
+            if (roles.length > 0) {
+                const options = roles.map(role => {
+                    return { label: role.name, value: role.role_key, id: role.role_id }
+                })
+                setRoleOptions(options)
+            }
         }
-    },[roles])
+    }, [roles])
 
     function handleSelect(data: any) {
         setSelectedOptions(data);
@@ -95,7 +126,6 @@ export default function Users() {
         }),
         singleValue: (defaultStyles: any) => ({ ...defaultStyles, color: "#fff" }),
     };
-    if (!users) return <div>loading...</div>
     return (
         <div className='flex flex-col'>
             <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>

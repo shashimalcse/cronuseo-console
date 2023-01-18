@@ -9,11 +9,12 @@ import { routes } from '../../src/routes';
 import Link from 'next/link'
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
+import { getSession, useSession } from 'next-auth/react'
+import { getToken } from 'next-auth/jwt'
 
-export default function Resources() {
+const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) => {
     const [showModal, setShowModel] = useState(false)
-    const [resources, setResources] = useState<IResourcesReslut[] | undefined>(undefined)
+    const [resources, setResources] = useState<IResourcesReslut[]>(resourcesResult)
     const [resource, setResource] = useState<IResourceCreateRequest>({ name: "", resource_key: "" })
 
     const router = useRouter()
@@ -54,10 +55,6 @@ export default function Resources() {
         fetchResources()
     }
 
-    useEffect(() => {
-        fetchResources()
-    }, [])
-
     const fetchResources = async () => {
         await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`,
             {
@@ -72,7 +69,7 @@ export default function Resources() {
                 setResources(data?.results)
             })
     }
-
+    if (!resources) return <div>Loading...</div>
     return (
         <div className='flex flex-col'>
             <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>
@@ -159,3 +156,25 @@ export default function Resources() {
         </div>
     )
 }
+
+export async function getServerSideProps({ req, res }:any) {
+
+    const session = await getToken({ req: res.req })
+
+    const response = await fetch(`http://localhost:8080/api/v1/${session?.org_id}/resource`,
+    {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            "Content-Type": "application/json ; charset=utf8",
+        },
+    })
+    const resourcesResult = await response.json();
+    return {
+        props: {
+            resourcesResult: resourcesResult.results,
+        },
+    };
+}
+
+export default Resource;

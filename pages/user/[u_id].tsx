@@ -8,6 +8,7 @@ import Create_Model from '../../components/create_model';
 import { IRolesReslut, IUserCreateRequest, IUsersReslut, IUserUpdateRequest } from '../../src/interfaces';
 import { routes } from '../../src/routes';
 import Select from 'react-select';
+import { useSession } from 'next-auth/react';
 
 
 export default function User() {
@@ -23,6 +24,15 @@ export default function User() {
     const [patchRemoveRoles, setPatchRemoveRoles] = useState<RoleOption[]>([])
     const [assignedRoleOptions, setAssignedRoleOptions] = useState<RoleOption[]>([])
 
+    const { status, data } = useSession();
+
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace('/auth/signin')
+        }
+    }, [status]);
+
     const submitUpdateUser = async () => {
         const addroles = getDifference(patchAddRoles, assignedRoleOptions);
         const patchRequest = {
@@ -30,24 +40,30 @@ export default function User() {
                 {
                     op: "add",
                     path: "roles",
-                    values: addroles.map(role => ({ value : role.id}))
+                    values: addroles.map(role => ({ value: role.id }))
                 },
                 {
                     op: "remove",
                     path: "roles",
-                    values: patchRemoveRoles.map(role => ({ value : role.id}))
+                    values: patchRemoveRoles.map(role => ({ value: role.id }))
                 },
             ]
         }
-        await fetch(routes.user + `/${user?.user_id}`, {
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/user` + `/${user?.user_id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             body: JSON.stringify(updateUser)
         })
 
-        await fetch(routes.user + `/${user?.user_id}`, {
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/user` + `/${user?.user_id}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             body: JSON.stringify(patchRequest)
         })
     }
@@ -57,28 +73,43 @@ export default function User() {
             return;
         }
         const { u_id } = router.query
-        fetch(routes.user + `/${u_id}`)
+        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/user` + `/${u_id}`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        })
             .then((res) => res.json())
             .then((data) => {
                 setUser(data)
                 setUpdateUser(prev => ({ ...prev, firstname: data?.firstname, lastname: data?.lastname }))
             })
-    },[router.isReady])
+    }, [router.isReady])
 
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
         const { u_id } = router.query
-        fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role/user/${u_id}`)
+        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role/user/${u_id}`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        })
             .then((res) => res.json())
             .then((data) => {
                 setAssignedRoles(data?.results)
             })
-    },[router.isReady])
+    }, [router.isReady])
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/v1/ba85c765-aa3e-4a9c-9d40-10db2c6f6c51/role`)
+        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        })
             .then((res) => res.json())
             .then((data) => {
                 setRoles(data?.results)

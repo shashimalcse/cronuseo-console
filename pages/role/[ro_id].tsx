@@ -9,6 +9,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { IActionsReslut, IResourcesReslut, IRolesReslut } from "../../src/interfaces";
 import Select from 'react-select';
 import { RoleOption } from "../user";
+import { useSession } from "next-auth/react";
 
 export default function Role() {
   const router = useRouter();
@@ -18,12 +19,21 @@ export default function Role() {
   const [name, setName] = useState("");
   const [showModal, setShowModel] = useState(false);
 
+  const { status, data } = useSession();
+
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace('/auth/signin')
+    }
+  }, [status]);
+
   useEffect(() => {
     if (!router.isReady) {
       return;
     }
     const { ro_id } = router.query;
-    fetch(routes.role + `/${ro_id}`)
+    fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role` + `/${ro_id}`)
       .then((res) => res.json())
       .then((data) => {
         setRole(data);
@@ -36,7 +46,7 @@ export default function Role() {
   }, [])
 
   const fetchRoles = async () => {
-    fetch(routes.resource)
+    fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`)
       .then((res) => res.json())
       .then((data) => {
         setResources(data?.results)
@@ -145,57 +155,6 @@ export default function Role() {
             )}
           </div>
         </div>
-        {/* <Create_Model
-          title="Create a Resource"
-          isVisible={showModal}
-          onClose={() => {
-            setShowModel(false);
-          }}
-        >
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Resource Name
-            </label>
-            <input
-              type="text"
-              value={action.name}
-              onChange={(e) =>
-                setAction({
-                  name: e.target.value,
-                  action_key: action.action_key,
-                })
-              }
-              id="name"
-              className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500"
-              placeholder="Resource Name"
-            />
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Resource Key
-            </label>
-            <input
-              type="text"
-              value={action.action_key}
-              onChange={(e) =>
-                setAction({ name: action.name, action_key: e.target.value })
-              }
-              id="key"
-              className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500"
-              placeholder="Resource Name"
-            />
-          </div>
-          <div className="flex flex-grow flex-row justify-end items-center">
-            <button
-              className="bg-yellow-500 rounded-md px-6 py-2 text-white text-xs"
-              onClick={() => {
-                submitAction();
-              }}
-            >
-              Create
-            </button>
-          </div>
-        </Create_Model> */}
       </div>
     </div>
   );
@@ -329,18 +288,18 @@ const Permission = ({ resource, role }: any) => {
     setSelectedOptions(data);
     const selected = [...data]
     const assigned = [...assignedActionOptions]
-    if (selected.length> assigned.length) {
+    if (selected.length > assigned.length) {
       const diff = getDifference(selected, assigned)
-      if (diff.length>0) {
+      if (diff.length > 0) {
         setIsChangeHappened(true)
-      } else{
+      } else {
         setIsChangeHappened(false)
       }
     } else {
       const diff = getDifference(assigned, selected)
-      if (diff.length>0) {
+      if (diff.length > 0) {
         setIsChangeHappened(true)
-      } else{
+      } else {
         setIsChangeHappened(false)
       }
     }
