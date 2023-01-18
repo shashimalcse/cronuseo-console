@@ -5,9 +5,11 @@ declare module "next-auth" {
     org_id: string;
     user_id: string;
     username: string;
+    token: string;
   }
   interface Session extends DefaultSession {
     user?: User;
+    accessToken: string;
   }
 }
 
@@ -16,5 +18,6 @@ declare module "next-auth/jwt" {
     org_id: string;
     user_id: string;
     username: string;
+    accessToken: string;
   }
 }

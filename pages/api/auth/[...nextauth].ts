@@ -16,7 +16,6 @@ const authOptions: NextAuthOptions = {
           password: string;
         };
         const resp = await fetch(routes.login, {
-          credentials: "include",
           method: "POST",
           headers: { "Content-Type": "application/json ; charset=utf8" },
           body: JSON.stringify({ username: username, password: password }),
@@ -34,7 +33,7 @@ const authOptions: NextAuthOptions = {
 
           if (resp2.status === 200) {
             const userData = await resp2.json();
-            const user = { ...userData };
+            const user = { ...userData, token };
             return user;
           } else {
             throw new Error("Invalid");
@@ -51,6 +50,7 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.accessToken = user.token;
         token.user_id = user.user_id;
         token.org_id = user.org_id;
         token.username = user.username;
@@ -62,6 +62,7 @@ const authOptions: NextAuthOptions = {
         session.user.user_id = token.user_id;
         session.user.org_id = token.org_id;
         session.user.username = token.username;
+        session.accessToken = token.accessToken
       }
       return session;
     },

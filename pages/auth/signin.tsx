@@ -10,19 +10,9 @@ export default function Login() {
 
   async function handleLogin() {
     const res = await signIn('credentials', {username: user.username, password:user.password, redirect:false})
-    console.log(res)
-    // const resp = await fetch(routes.login, {
-    //   credentials: "include",
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json ; charset=utf8' },
-    //   body: JSON.stringify(user)
-    // })
-
-    // const json = await resp.json()
-
-    // if (resp.status === 200) {
-    //   router.replace('/')
-    // }
+    if (res?.status === 200) {
+      router.push('/')
+    }
   }
 
   return (

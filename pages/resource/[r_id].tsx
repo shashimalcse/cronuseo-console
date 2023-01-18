@@ -7,6 +7,7 @@ import Create_Model from '../../components/create_model';
 import { IActionCreateRequest, IActionsReslut, IResourcesReslut } from '../../src/interfaces';
 import { routes } from '../../src/routes';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { useSession } from 'next-auth/react';
 
 export default function Resource() {
     const router = useRouter()
@@ -17,12 +18,26 @@ export default function Resource() {
     const [actions, setActions] = useState<IActionsReslut[] | undefined>(undefined)
     const [action, setAction] = useState<IActionCreateRequest>({ name: "", action_key: "" })
 
+    const { status, data } = useSession();
+
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace('/auth/signin')
+        }
+        console.log(data?.accessToken)
+    }, [status]);
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
         const { r_id } = router.query
-        fetch(routes.resource + `/${r_id}`)
+        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource` + `/${r_id}`,{
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+              },
+        })
             .then((res) => res.json())
             .then((data) => {
                 setResource(data)
@@ -32,18 +47,26 @@ export default function Resource() {
 
     const fetchActions = async () => {
         const { r_id } = router.query
-        await             fetch(`http://localhost:8080/api/v1/${r_id}/action`)
-        .then((res) => res.json())
-        .then((data) => {
-            setActions(data?.results)
+        await fetch(`http://localhost:8080/api/v1/${r_id}/action`,{
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+              },
         })
-     }
+            .then((res) => res.json())
+            .then((data) => {
+                setActions(data?.results)
+            })
+    }
 
     const submitAction = async () => {
         const { r_id } = router.query
         const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             body: JSON.stringify(action)
         })
         if (response.status == 201) {
@@ -84,10 +107,10 @@ export default function Resource() {
                             <li className="mr-2" onClick={() => { setShowCreateAction(false) }}>
                                 <a href="#" className={(!showCreateAction ? "text-yellow-400 border-yellow-400" : "hover:text-gray-600 hover:border-gray-300") + " inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Settings</a>
                             </li>
-                            <li className="mr-2" onClick={() => { 
+                            <li className="mr-2" onClick={() => {
                                 setShowCreateAction(true);
-                                fetchActions() 
-                                }}>
+                                fetchActions()
+                            }}>
                                 <a href="#" className={(showCreateAction ? "text-yellow-400 border-yellow-400" : "hover:text-gray-600 hover:border-gray-300") + " inline-block p-4 rounded-t-lg border-b-2 border-transparent"}>Actions</a>
                             </li>
                         </ul>

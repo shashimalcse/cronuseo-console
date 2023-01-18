@@ -8,17 +8,31 @@ import { IResourceCreateRequest, IResourcesReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes';
 import Link from 'next/link'
 import Cookies from 'js-cookie'
+import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 
 export default function Resources() {
     const [showModal, setShowModel] = useState(false)
     const [resources, setResources] = useState<IResourcesReslut[] | undefined>(undefined)
     const [resource, setResource] = useState<IResourceCreateRequest>({ name: "", resource_key: "" })
 
+    const router = useRouter()
+    const { status, data } = useSession();
+
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace('/auth/signin')
+        }
+    }, [status]);
+
     const submitResource = async () => {
-        const response = await fetch(routes.resource, {
+        const response = await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
-            credentials: 'include',
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             body: JSON.stringify(resource)
         })
         if (response.status == 201) {
@@ -30,7 +44,11 @@ export default function Resources() {
     }
 
     const deleteResource = async (resource_id: string) => {
-        await fetch(routes.resource + `/${resource_id}`, {
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource` + `/${resource_id}`, {
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
             method: 'DELETE',
         })
         fetchResources()
@@ -41,10 +59,13 @@ export default function Resources() {
     }, [])
 
     const fetchResources = async () => {
-        await fetch(routes.resource,
+        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`,
             {
                 method: 'GET',
-                credentials: 'include',
+                headers: {
+                    Authorization: `Bearer ${data?.accessToken}`,
+                    "Content-Type": "application/json ; charset=utf8",
+                },
             })
             .then((res) => res.json())
             .then((data) => {
