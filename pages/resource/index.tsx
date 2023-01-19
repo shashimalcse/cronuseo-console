@@ -26,7 +26,7 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
     }, [status]);
 
     const submitResource = async () => {
-        const response = await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`, {
+        const response = await fetch(`${process.env.BASE_API}/${data?.user?.org_id}/resource`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${data?.accessToken}`,
@@ -46,7 +46,7 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
     }
 
     const deleteResource = async (resource_id: string) => {
-        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource` + `/${resource_id}`, {
+        await fetch(`${process.env.BASE_API}/${data?.user?.org_id}/resource` + `/${resource_id}`, {
             headers: {
                 Authorization: `Bearer ${data?.accessToken}`,
                 "Content-Type": "application/json ; charset=utf8",
@@ -55,8 +55,6 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
         })
             .then((res) => {
                 if (res.status === 401) {
-
-                    
                     router.push('/auth/signin')
                 }
             })
@@ -64,7 +62,8 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
     }
 
     const fetchResources = async () => {
-        await fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`,
+
+        await fetch(`${process.env.BASE_API}/${data?.user?.org_id}/resource`,
             {
                 method: 'GET',
                 headers: {
@@ -93,7 +92,7 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
                             Rresource are the target object you want to authorize access too.
                         </div>
                     </div>
-                    <button className='bg-black rounded-md px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
+                    <button className='bg-black rounded px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
                         <div className='flex flex-row justify-between items-center gap-2'>
                             <FontAwesomeIcon icon={faPlus} />
                             Create a Resource
@@ -161,7 +160,7 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
                         <div className='text-gray-400 text-sm'>
                             There are no resource available at the moment.
                         </div>
-                        <button className='bg-black rounded-md px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
+                        <button className='bg-black rounded px-4 py-2 text-white font-semibold' onClick={() => setShowModel(true)}>
                             <div className='flex flex-row justify-between items-center gap-2'>
                                 <FontAwesomeIcon icon={faPlus} />
                                 Create a Resource
@@ -177,14 +176,14 @@ const Resource = ({ resourcesResult }: { resourcesResult: IResourcesReslut[] }) 
             }>
                 <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
-                    <input type="text" value={resource.name} onChange={(e) => setResource({ name: e.target.value, resource_key: resource.resource_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={resource.name} onChange={(e) => setResource({ name: e.target.value, resource_key: resource.resource_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
-                    <input type="text" value={resource.resource_key} onChange={(e) => setResource({ name: resource.name, resource_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                    <input type="text" value={resource.resource_key} onChange={(e) => setResource({ name: resource.name, resource_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
                 </div>
                 <div className='flex flex-grow flex-row justify-end items-center'>
-                    <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitResource() }}>
+                    <button className='bg-yellow-500 rounded px-6 py-2 text-white text-xs' onClick={() => { submitResource() }}>
                         Create
                     </button>
                 </div>
@@ -197,7 +196,7 @@ export async function getServerSideProps({ req, res }: any) {
 
     const session = await getToken({ req: res.req })
 
-    const response = await fetch(`http://localhost:8080/api/v1/${session?.org_id}/resource`,
+    const response = await fetch(`${process.env.BASE_API}/${session?.org_id}/resource`,
         {
             method: 'GET',
             headers: {

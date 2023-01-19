@@ -8,12 +8,15 @@ import { IActionCreateRequest, IActionsReslut, IResourcesReslut } from '../../sr
 import { routes } from '../../src/routes';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useSession } from 'next-auth/react';
+import { getToken } from 'next-auth/jwt';
 
-export default function Resource() {
+const Resource = ({ resourceResult }: { resourceResult: IResourcesReslut }) => {
+
+
     const router = useRouter()
-    const [resource, setResource] = useState<IResourcesReslut | undefined>(undefined)
+    const [resource, setResource] = useState<IResourcesReslut>(resourceResult)
     const [showCreateAction, setShowCreateAction] = useState(false)
-    const [name, setName] = useState("")
+    const [name, setName] = useState(resourceResult.name)
     const [showModal, setShowModel] = useState(false)
     const [actions, setActions] = useState<IActionsReslut[] | undefined>(undefined)
     const [action, setAction] = useState<IActionCreateRequest>({ name: "", action_key: "" })
@@ -21,47 +24,29 @@ export default function Resource() {
     const { status, data } = useSession();
 
 
-    useEffect(() => {
-        if (status === "unauthenticated") {
-            router.replace('/auth/signin')
-        }
-        console.log(data?.accessToken)
-    }, [status]);
-    useEffect(() => {
-        if (!router.isReady) {
-            return;
-        }
-        const { r_id } = router.query
-        fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource` + `/${r_id}`,{
-            headers: {
-                Authorization: `Bearer ${data?.accessToken}`,
-                "Content-Type": "application/json ; charset=utf8",
-              },
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setResource(data)
-                setName(data.name)
-            })
-    }, [router.isReady])
 
     const fetchActions = async () => {
-        const { r_id } = router.query
-        await fetch(`http://localhost:8080/api/v1/${r_id}/action`,{
+
+        await fetch(`${process.env.BASE_API}/${resource.resource_id}/action`, {
             headers: {
                 Authorization: `Bearer ${data?.accessToken}`,
                 "Content-Type": "application/json ; charset=utf8",
-              },
+            },
         })
-            .then((res) => res.json())
+            .then((res) => {
+                if (res.status === 401) {
+                    router.push('/auth/signin')
+                }
+                return res.json()
+            })
             .then((data) => {
                 setActions(data?.results)
             })
     }
 
     const submitAction = async () => {
-        const { r_id } = router.query
-        const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action`, {
+
+        const response = await fetch(`${process.env.BASE_API}/${resource.resource_id}/action`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${data?.accessToken}`,
@@ -69,18 +54,30 @@ export default function Resource() {
             },
             body: JSON.stringify(action)
         })
+        if (response.status === 401) {
+            router.push('/auth/signin')
+        }
         if (response.status == 201) {
             setAction({ name: "", action_key: "" })
             setShowModel(false)
         }
+        fetchActions()
 
     }
 
     const deleteAction = async (action_id: string) => {
-        const { r_id } = router.query
-        const response = await fetch(`http://localhost:8080/api/v1/${r_id}/action/${action_id}`, {
+
+        const response = await fetch(`${process.env.BASE_API}/${resource.resource_id}/action/${action_id}`, {
             method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
         })
+        if (response.status === 401) {
+            router.push('/auth/signin')
+        }
+        fetchActions()
     }
 
     return (
@@ -183,21 +180,21 @@ export default function Resource() {
                         }
                     </div>
                 </div>
-                <Create_Model title='Create a Resource' isVisible={showModal} onClose={() => {
+                <Create_Model title='Create a Action' isVisible={showModal} onClose={() => {
                     setAction({ name: "", action_key: "" })
                     setShowModel(false)
                 }
                 }>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Name</label>
-                        <input type="text" value={action.name} onChange={(e) => setAction({ name: e.target.value, action_key: action.action_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Action Name</label>
+                        <input type="text" value={action.name} onChange={(e) => setAction({ name: e.target.value, action_key: action.action_key })} id="name" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Action Name' />
                     </div>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resource Key</label>
-                        <input type="text" value={action.action_key} onChange={(e) => setAction({ name: action.name, action_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded-lg bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Resource Name' />
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Action Key</label>
+                        <input type="text" value={action.action_key} onChange={(e) => setAction({ name: action.name, action_key: e.target.value })} id="key" className="block w-full p-2 text-gray-50 border border-gray-500 rounded bg-gray-600 sm:text-xs focus:ring-yellow-500 focus:border-yellow-500" placeholder='Action Name' />
                     </div>
                     <div className='flex flex-grow flex-row justify-end items-center'>
-                        <button className='bg-yellow-500 rounded-md px-6 py-2 text-white text-xs' onClick={() => { submitAction() }}>
+                        <button className='bg-yellow-500 rounded px-6 py-2 text-white text-xs' onClick={() => { submitAction() }}>
                             Create
                         </button>
                     </div>
@@ -206,3 +203,34 @@ export default function Resource() {
         </div>
     )
 }
+
+export async function getServerSideProps({ params, res }: any) {
+
+    const session = await getToken({ req: res.req })
+
+    const response = await fetch(`${process.env.BASE_API}/${session?.org_id}/resource` + `/${params.r_id}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        })
+    if (response.status === 401) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/auth/signin'
+            }
+        }
+    }
+
+    const resourceResult = await response.json();
+    return {
+        props: {
+            resourceResult: resourceResult
+        },
+    };
+}
+
+export default Resource;
