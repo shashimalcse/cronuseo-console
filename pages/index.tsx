@@ -16,15 +16,7 @@ export default function Home() {
       router.replace('/auth/signin')
     }
   }, [status]);
-
-  if (status === "authenticated") {
-    return (
-      <div>
-        This page is Protected for special people. like{"\n"}
-        {JSON.stringify(data, null, 2)}
-      </div>
-    );
-  }
+  
   return (
     <div className='flex flex-col'>
       <div className='flex flex-grow justify-between items-start w-[100hv] h-[50px] mx-8 my-4'>
