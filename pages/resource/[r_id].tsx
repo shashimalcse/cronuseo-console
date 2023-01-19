@@ -231,7 +231,7 @@ const Resource = ({ resourceResult }: { resourceResult: IResourcesReslut }) => {
                                 ) : (
                                     <div className="flex flex-col flex-grow h-full justify-center items-center p-5 gap-5">
                                         <div className="text-gray-400 text-sm">
-                                            There are no action available at the moment.
+                                            There are no actions available at the moment.
                                         </div>
                                         <button
                                             className="bg-black rounded-md px-4 py-2 text-white font-semibold"
