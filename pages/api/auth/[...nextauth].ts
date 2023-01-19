@@ -63,7 +63,7 @@ const authOptions: NextAuthOptions = {
         session.user.user_id = token.user_id;
         session.user.org_id = token.org_id;
         session.user.username = token.username;
-        session.accessToken = token.accessToken
+        session.accessToken = token.accessToken;
       }
       return session;
     },
