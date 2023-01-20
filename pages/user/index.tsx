@@ -100,13 +100,11 @@ const Users = ({ usersResult, rolesResult }: { usersResult: IUsersReslut[], role
     };
 
     useEffect(() => {
-        if (roles) {
-            if (roles.length > 0) {
-                const options = roles.map((role) => {
-                    return { label: role.name, value: role.role_key, id: role.role_id };
-                });
-                setRoleOptions(options);
-            }
+        if (roles && roles.length > 0) {
+            const options = roles.map((role) => {
+                return { label: role.name, value: role.role_key, id: role.role_id };
+            });
+            setRoleOptions(options);
         }
     }, [roles]);
 
