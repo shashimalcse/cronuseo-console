@@ -115,3 +115,11 @@ export interface IRoleCreateRequest {
     role_key: string;
 }
 
+export interface IOrgReslut {
+    org_id: string;
+    name: string;
+    org_key: string;
+    created_at: string;
+    updated_at: string;
+}
+

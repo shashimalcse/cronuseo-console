@@ -166,7 +166,7 @@ const Permission = ({ resource, role }: any) => {
 
     const actions_keys = actions?.map(action => action.action_key)
     if (actions) {
-      await fetch(routes.permission + `/check_actions`, {
+      await fetch(`${process.env.BASE_API}/${data?.user?.org_id}/permission/check_actions`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${data?.accessToken}`,
@@ -295,7 +295,7 @@ const Permission = ({ resource, role }: any) => {
         },
       ]
     }
-    await fetch(routes.permission + `/update`, {
+    await fetch(`${process.env.BASE_API}/${data?.user?.org_id}/permission/update`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${data?.accessToken}`,

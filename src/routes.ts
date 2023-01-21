@@ -1,5 +1,4 @@
 export const routes = {
-    permission: `http://localhost:8080/api/v1/super/permission`,
-    login: `http://localhost:8080/api/v1/login`,
-    me: `http://localhost:8080/api/v1/me`
+    login: `http://localhost:8080/api/v1/auth/login`,
+    me: `http://localhost:8080/api/v1/auth/me`
   };
