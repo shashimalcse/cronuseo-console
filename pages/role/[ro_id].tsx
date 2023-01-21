@@ -1,57 +1,20 @@
 import { faPlus, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import Create_Model from "../../components/create_model";
 import { routes } from "../../src/routes";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { IActionsReslut, IResourcesReslut, IRolesReslut } from "../../src/interfaces";
 import Select from 'react-select';
-import { RoleOption } from "../user";
 import { useSession } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
 
-export default function Role() {
-  const router = useRouter();
-  const [role, setRole] = useState<IRolesReslut | undefined>(undefined);
+const Role = ({ roleResult, resourcesResult }: { roleResult: IRolesReslut, resourcesResult: IResourcesReslut[] }) => {
+
+  const [role, setRole] = useState<IRolesReslut>(roleResult);
   const [showCreateAction, setShowCreateAction] = useState(false);
-  const [resources, setResources] = useState<IResourcesReslut[] | undefined>(undefined)
-  const [name, setName] = useState("");
+  const [resources, setResources] = useState<IResourcesReslut[]>(resourcesResult)
+  const [name, setName] = useState(roleResult.name);
   const [showModal, setShowModel] = useState(false);
-
-  const { status, data } = useSession();
-
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace('/auth/signin')
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
-    const { ro_id } = router.query;
-    fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/role` + `/${ro_id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setRole(data);
-        setName(data.name);
-      });
-  }, [router.isReady]);
-
-  useEffect(() => {
-    fetchRoles()
-  }, [])
-
-  const fetchRoles = async () => {
-    fetch(`http://localhost:8080/api/v1/${data?.user?.org_id}/resource`)
-      .then((res) => res.json())
-      .then((data) => {
-        setResources(data?.results)
-      })
-  }
 
   return (
     <div className="">
@@ -61,22 +24,11 @@ export default function Role() {
             <Link href={"/role"}>
               <FontAwesomeIcon icon={faAngleLeft} />
             </Link>
-            <h1 className="font-sans text-xl font-bold">{role?.name}</h1>
+            <h1 className="font-sans text-xl font-bold">{role.name}</h1>
             <div className="text-gray-500 text-sm">
               {role?.role_key}
             </div>
           </div>
-          {showCreateAction ? (
-            <button
-              className="bg-black rounded-md px-4 py-2 text-white font-semibold"
-              onClick={() => setShowModel(true)}
-            >
-              <div className="flex flex-row justify-between items-center gap-2">
-                <FontAwesomeIcon icon={faPlus} />
-                Add a Permission
-              </div>
-            </button>
-          ) : null}
         </div>
         <div className="flex flex-col mx-10 border rounded-lg bg-white">
           <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-200">
@@ -175,6 +127,9 @@ const Permission = ({ resource, role }: any) => {
   const [assignedActionOptions, setAssignedActionOptions] = useState<ActionOption[]>([])
   const [isChangeHappened, setIsChangeHappened] = useState(false)
 
+  // const router = useRouter();
+  const { status, data } = useSession();
+
   useEffect(() => {
     fetchActions()
   }, [!actions])
@@ -184,8 +139,18 @@ const Permission = ({ resource, role }: any) => {
 
   const fetchActions = async () => {
 
-    await fetch(`http://localhost:8080/api/v1/${resource.resource_id}/action`)
-      .then((res) => res.json())
+    await fetch(`${process.env.BASE_API}/${resource.resource_id}/action`, {
+      headers: {
+        Authorization: `Bearer ${data?.accessToken}`,
+        "Content-Type": "application/json ; charset=utf8",
+      },
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          // router.push("/auth/signin");
+        }
+        return res.json();
+      })
       .then((data) => {
         setActions(data.results)
       })
@@ -203,20 +168,31 @@ const Permission = ({ resource, role }: any) => {
     if (actions) {
       await fetch(routes.permission + `/check_actions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json ; charset=utf8' },
+        headers: {
+          Authorization: `Bearer ${data?.accessToken}`,
+          "Content-Type": "application/json ; charset=utf8",
+        },
         body: JSON.stringify({ role: role.role_key, resource: resource.resource_key, actions: actions_keys })
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            // router.push("/auth/signin");
+          }
+          return res.json();
+        })
         .then((data) => {
-          const options = data?.map((val: string) => {
-            const action = actions.find(action => action.action_key === val)
-            if (action) {
-              return { label: action.name, value: action.action_key, id: action.action_id }
+          console.log(data)
+          if (data && data.length > 0){
+            const options = data?.map((val: string) => {
+              const action = actions.find(action => action.action_key === val)
+              if (action) {
+                return { label: action.name, value: action.action_key, id: action.action_id }
+              }
+            })
+            if (options) {
+              setSelectedOptions(options)
+              setAssignedActionOptions(options)
             }
-          })
-          if (options) {
-            setSelectedOptions(options)
-            setAssignedActionOptions(options)
           }
         })
     }
@@ -321,7 +297,10 @@ const Permission = ({ resource, role }: any) => {
     }
     await fetch(routes.permission + `/update`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json ; charset=utf8' },
+      headers: {
+        Authorization: `Bearer ${data?.accessToken}`,
+        "Content-Type": "application/json ; charset=utf8",
+      },
       body: JSON.stringify(patchRequest)
     })
     fetchAllowedActions()
@@ -345,3 +324,61 @@ const Permission = ({ resource, role }: any) => {
     </div>
   )
 }
+
+export async function getServerSideProps({ params, res }: any) {
+
+  const session = await getToken({ req: res.req });
+
+  const response = await fetch(
+    `${process.env.BASE_API}/${session?.org_id}/role` + `/${params.ro_id}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json ; charset=utf8",
+      },
+    }
+  );
+  if (response.status === 401) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/auth/signin",
+      },
+    };
+  }
+
+  const roleResult = await response.json();
+
+  // Fetch all resources.
+  const response2 = await fetch(
+    `${process.env.BASE_API}/${session?.org_id}/resource`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json ; charset=utf8",
+      },
+    }
+  );
+
+  if (response2.status === 401) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/auth/signin",
+      },
+    };
+  }
+
+  const resourcesResult = await response2.json();
+
+  return {
+    props: {
+      roleResult: roleResult,
+      resourcesResult: resourcesResult.results
+    },
+  };
+}
+
+export default Role;

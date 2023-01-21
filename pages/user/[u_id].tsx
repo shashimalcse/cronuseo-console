@@ -63,7 +63,7 @@ const User = ({
             ],
         };
         const res = await fetch(
-            `http://localhost:8080/api/v1/${user.org_id}/user` + `/${user.user_id}`,
+            `${process.env.BASE_API}/${user.org_id}/user` + `/${user.user_id}`,
             {
                 method: "PUT",
                 headers: {
@@ -84,7 +84,7 @@ const User = ({
         }
         if (addroles.length > 0 || patchRemoveRoles.length > 0) {
             const res2 = await fetch(
-                `http://localhost:8080/api/v1/${user.org_id}/user` + `/${user.user_id}`,
+                `${process.env.BASE_API}/${user.org_id}/user` + `/${user.user_id}`,
                 {
                     method: "PATCH",
                     headers: {
@@ -110,7 +110,7 @@ const User = ({
 
     async function fetchUser() {
         const response = await fetch(
-            `http://localhost:8080/api/v1/${user.org_id}/user` + `/${user.user_id}`,
+            `${process.env.BASE_API}/${user.org_id}/user` + `/${user.user_id}`,
             {
                 method: "GET",
                 headers: {
@@ -336,7 +336,7 @@ export async function getServerSideProps({ params, res }: any) {
     const session = await getToken({ req: res.req });
 
     const response = await fetch(
-        `http://localhost:8080/api/v1/${session?.org_id}/user` + `/${params.u_id}`,
+        `${process.env.BASE_API}/${session?.org_id}/user` + `/${params.u_id}`,
         {
             method: "GET",
             headers: {
@@ -381,7 +381,7 @@ export async function getServerSideProps({ params, res }: any) {
 
     // Fetch assigned roles.
     const response3 = await fetch(
-        `http://localhost:8080/api/v1/${session?.org_id}/role/user/${params.u_id}`,
+        `${process.env.BASE_API}/${session?.org_id}/role/user/${params.u_id}`,
         {
             method: "GET",
             headers: {

@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { getToken } from "next-auth/jwt";
 
-const Resource = ({
+const Resources = ({
     resourcesResult,
 }: {
     resourcesResult: IResourcesReslut[];
@@ -93,7 +93,7 @@ const Resource = ({
                     <div className="flex flex-col">
                         <h1 className="font-sans text-xl font-bold">Resources</h1>
                         <div className="text-gray-500 text-sm">
-                            Rresource are the target object you want to authorize access too.
+                            Resource are the target object you want to authorize access too.
                         </div>
                     </div>
                     <button
@@ -161,7 +161,7 @@ const Resource = ({
                 ) : (
                     <div className="flex flex-col h-full justify-center items-center gap-5">
                         <div className="text-gray-400 text-sm">
-                            There are no resource available at the moment.
+                            There are no resources available at the moment.
                         </div>
                         <button
                             className="bg-black rounded px-4 py-2 text-white font-semibold"
@@ -262,4 +262,4 @@ export async function getServerSideProps({ req, res }: any) {
     };
 }
 
-export default Resource;
+export default Resources;
