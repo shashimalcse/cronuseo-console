@@ -1,12 +1,18 @@
-import { useState } from 'react'
+import Cookies from 'js-cookie'
+import { getToken } from 'next-auth/jwt'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { IOrgReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes'
 
-export default function Playground() {
+const Playground = ({orgResult}:{orgResult:IOrgReslut}) => {
+    const [org, setOrg] = useState(orgResult)
     const [role, setRole] = useState("")
     const [action, setAction] = useState("")
     const [resource, setResource] = useState("")
     const [allowed, setAllowed] = useState<boolean | undefined>(undefined)
 
+    const router = useRouter();
 
     const check = async () => {
         const tuple = {
@@ -14,14 +20,18 @@ export default function Playground() {
             relation: action,
             subject: role
         }
-        await fetch(routes.permission + `/check`, {
+        await fetch(`${process.env.BASE_API}/${org.org_key}/permission/check`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json ; charset=utf8' },
             body: JSON.stringify(tuple)
         })
-            .then((res) => res.json())
+        .then((res) => {
+            if (res.status === 401) {
+                router.push("/auth/signin");
+            }
+            return res.json();
+        })
             .then((data) => {
-                console.log(data)
                 setAllowed(data)
             }
             )
@@ -79,3 +89,37 @@ export default function Playground() {
 
     )
 }
+
+export async function getServerSideProps({ req, res }: any) {
+
+    const session = await getToken({ req: res.req });
+
+    const response = await fetch(
+        `${process.env.BASE_API}/organization/${session?.org_id}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        }
+    );
+
+    if (response.status === 401) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: "/auth/signin",
+            },
+        };
+    }
+
+    const orgResult = await response.json();
+    return {
+        props: {
+            orgResult: orgResult,
+        },
+    };
+}
+
+export default Playground;
