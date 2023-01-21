@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { IOrgReslut } from '../../src/interfaces'
 import { routes } from '../../src/routes'
 
-const Playground = ({orgResult}:{orgResult:IOrgReslut}) => {
+const Playground = ({ orgResult }: { orgResult: IOrgReslut }) => {
     const [org, setOrg] = useState(orgResult)
     const [role, setRole] = useState("")
     const [action, setAction] = useState("")
@@ -22,15 +22,18 @@ const Playground = ({orgResult}:{orgResult:IOrgReslut}) => {
         }
         await fetch(`${process.env.BASE_API}/${org.org_key}/permission/check`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json ; charset=utf8' },
+            headers: {
+                'Content-Type': 'application/json ; charset=utf8',
+                'API_KEY': 'C2tA3DYsaAr4mMUuOfB59yUDhw7ryaTtVo/pEbAGjnk='
+            },
             body: JSON.stringify(tuple)
         })
-        .then((res) => {
-            if (res.status === 401) {
-                router.push("/auth/signin");
-            }
-            return res.json();
-        })
+            .then((res) => {
+                if (res.status === 401) {
+                    router.push("/auth/signin");
+                }
+                return res.json();
+            })
             .then((data) => {
                 setAllowed(data)
             }
@@ -57,22 +60,22 @@ const Playground = ({orgResult}:{orgResult:IOrgReslut}) => {
                                     <input value={role} onChange={(e) => {
                                         setRole(e.target.value)
                                         setAllowed(undefined)
-                                        }
-                                        } type="text" id="key" className="w-[200px] h-[50px] block p-2 text-black text-center  rounded bg-gray-50 text-lg bg-opacity-40 placeholder-gray-700 focus:outline-none focus:border-white focus:ring-white" placeholder='Role' />
+                                    }
+                                    } type="text" id="key" className="w-[200px] h-[50px] block p-2 text-black text-center  rounded bg-gray-50 text-lg bg-opacity-40 placeholder-gray-700 focus:outline-none focus:border-white focus:ring-white" placeholder='Role' />
                                 </div>
                                 <div>
                                     <input value={action} onChange={(e) => {
                                         setAction(e.target.value)
                                         setAllowed(undefined)
-                                        }
-                                        } type="text" id="key" className="w-[200px] h-[50px] block p-2 text-black text-center  rounded bg-gray-50 text-lg bg-opacity-40 placeholder-gray-700 focus:outline-none focus:border-white focus:ring-white" placeholder='Action' />
+                                    }
+                                    } type="text" id="key" className="w-[200px] h-[50px] block p-2 text-black text-center  rounded bg-gray-50 text-lg bg-opacity-40 placeholder-gray-700 focus:outline-none focus:border-white focus:ring-white" placeholder='Action' />
                                 </div>
                                 <div>
                                     <input value={resource} onChange={(e) => {
                                         setResource(e.target.value)
                                         setAllowed(undefined)
-                                        }
-                                        } type="text" id="key" className="w-[200px] h-[50px] block p-2 text-black text-center  rounded bg-gray-50 text-lg bg-opacity-40 placeholder-gray-700 focus:outline-none focus:border-white focus:ring-white" placeholder='Resource' />
+                                    }
+                                    } type="text" id="key" className="w-[200px] h-[50px] block p-2 text-black text-center  rounded bg-gray-50 text-lg bg-opacity-40 placeholder-gray-700 focus:outline-none focus:border-white focus:ring-white" placeholder='Resource' />
                                 </div>
                             </div>
                             <div>
