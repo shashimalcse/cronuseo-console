@@ -1,4 +1,5 @@
 import { getToken } from 'next-auth/jwt'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { IOrgReslut } from '../../src/interfaces'
@@ -8,6 +9,9 @@ const Settings = ({ orgResult }: { orgResult: IOrgReslut }) => {
     const [org, setOrg] = useState(orgResult)
     const [copied, setCopied] = useState(false);
     const resetCopy = useRef<NodeJS.Timeout>();
+
+    const router = useRouter();
+    const { status, data } = useSession();
 
     const onCopy = () => {
         navigator.clipboard
@@ -25,6 +29,25 @@ const Settings = ({ orgResult }: { orgResult: IOrgReslut }) => {
             clearTimeout(resetCopy.current);
         };
     }, [copied]);
+
+    const RefreshAPIKey = async () => {
+        await fetch(`${process.env.BASE_API}/organization/${data?.user?.org_id}/refresh`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${data?.accessToken}`,
+                "Content-Type": "application/json ; charset=utf8",
+            },
+        }).then((res) => {
+            if (res.status === 401) {
+                router.push("/auth/signin");
+            }
+            return res.json();
+        })
+            .then((data) => {
+                setOrg(data)
+            })
+    }
+
     return (
         <div className='flex flex-col h-full'>
             <div className="flex-none w-[100hv] h-[50px] mx-8 my-4">
@@ -50,6 +73,14 @@ const Settings = ({ orgResult }: { orgResult: IOrgReslut }) => {
                             onClick={onCopy}
                         >
                             {copied ? 'copied!' : 'Copy'}
+                        </button>
+                        <button
+                            className="bg-black rounded ml-5 px-4 py-2 text-white font-semibold"
+                            onClick={() => RefreshAPIKey()}
+                        >
+                            <div className="flex flex-row justify-between items-center gap-2">
+                                Regenerate API Key
+                            </div>
                         </button>
                     </div>
                 </div>
