@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { RiDashboardLine, RiAdminFill } from 'react-icons/ri';
-import { FiUsers } from 'react-icons/fi';
+import { FiUsers, FiSettings } from 'react-icons/fi';
 import { GrResources } from 'react-icons/gr';
 import { IoIosPeople } from 'react-icons/io';
 import { useRouter } from 'next/router'
@@ -15,7 +15,8 @@ const Sidebar = () => {
             </div>
             <hr className="my-8 h-px bg-gray-200 border-0"></hr>
             <div className="flex flex-col gap-1 items-center m-[30px]">
-                <SidebarItem title="Team Management" icon={<RiAdminFill />} path="/team" />
+                <SidebarItem title="Settings" icon={<FiSettings />} path="/settings" />
+                {/* <SidebarItem title="Team Management" icon={<RiAdminFill />} path="/team" /> */}
 
             </div>
 
@@ -31,9 +32,9 @@ const SidebarItem = ({ title, icon, path }: any) => {
     const currentRoute = router.pathname
     return (
         <Link href={path} >
-            <div className={currentRoute === path ? 
-                'font-sans text-gray-600 flex flex-row justify-start items-center gap-4 m-1 p-2 w-[200px] h-[40px] rounded-lg hover:bg-[#EBEBEB] bg-[#EBEBEB]' 
-                :'font-sans text-gray-600 flex flex-row justify-start items-center gap-4 m-1 p-2 w-[200px] h-[40px] rounded-lg hover:bg-[#EBEBEB]'}>
+            <div className={currentRoute === path ?
+                'font-sans text-gray-600 flex flex-row justify-start items-center gap-4 m-1 p-2 w-[200px] h-[40px] rounded-lg hover:bg-[#EBEBEB] bg-[#EBEBEB]'
+                : 'font-sans text-gray-600 flex flex-row justify-start items-center gap-4 m-1 p-2 w-[200px] h-[40px] rounded-lg hover:bg-[#EBEBEB]'}>
                 {icon}
                 {title}
             </div>

@@ -9,7 +9,8 @@ export default function Login() {
   const [user, setUser] = useState({ username: "", password: "" })
 
   async function handleLogin() {
-    const res = await signIn('credentials', {username: user.username, password:user.password, redirect:false})
+    const res = await signIn('credentials', {username: user.username, password:user.password, callbackUrl: 'http://localhost:3000/auth/signin', redirect:false})
+    console.log(res)
     if (res?.status === 200) {
       router.push('/')
     }

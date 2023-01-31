@@ -287,11 +287,11 @@ const Permission = ({ resource, role }: any) => {
       operations: [
         {
           op: "add",
-          permisssions: addActions.map(action => ({ role: role.role_key, resource: resource.resource_key, action: action.value }))
+          permissions: addActions.map(action => ({ role: role.role_key, resource: resource.resource_key, action: action.value }))
         },
         {
           op: "remove",
-          permisssions: patchRemoveActions.map(action => ({ role: role.role_key, resource: resource.resource_key, action: action.value }))
+          permissions: patchRemoveActions.map(action => ({ role: role.role_key, resource: resource.resource_key, action: action.value }))
         },
       ]
     }
