@@ -15,7 +15,7 @@ const authOptions: NextAuthOptions = {
           username: string;
           password: string;
         };
-        const resp = await fetch(routes.login, {
+        const resp = await fetch(`${process.env.BASE_API}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json ; charset=utf8" },
           body: JSON.stringify({ username: username, password: password }),
@@ -23,7 +23,7 @@ const authOptions: NextAuthOptions = {
         if (resp.status === 200) {
           const data = await resp.json();
           const token = data.token;
-          const resp2 = await fetch(routes.me, {
+          const resp2 = await fetch(`${process.env.BASE_API}/auth/me`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
